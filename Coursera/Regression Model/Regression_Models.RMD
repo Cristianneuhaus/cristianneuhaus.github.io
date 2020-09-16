@@ -1,0 +1,1120 @@
+---
+title: "Regression Models"
+author: "Cristian Neuhaus"
+date: "May 5, 2020"
+output: 
+  html_document:
+    code_folding: hide
+    --css: TRACEstyle.css
+    highlight: haddock
+    theme: spacelab
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    --resource_files: -TRACEBanner.png -TRACEstyle.css
+    
+---
+
+```{r setup, include=FALSE}
+        knitr::opts_chunk$set(echo = TRUE)
+```
+# Week #1 {.tabset .tabset-fade} 
+Quiz:  
+
+## Overview  
+
+**Introduction to regression and least squares**  
+
+* Introduction to Regression [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_01.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_01_part%201_v2.dff070d0eedc11e4a36595fc5aed7177/full/360p/index.mp4?Expires=1588896000&Signature=IvRTqy0ykDIq8~rHYylKz99cujApsa47ZeD1HvjoCUWBHDR9HJ7lYR4VLRiY~PerUQZS5ztFKeOnMKXL5EfyjRRQEJSIQt8HLBx0m58orjE0pRmzBQtLRBWPmW8Qs1gf75K3U4nZElqHmb0TbPzLJYIEQSPDCu-AuZ9m7ouBXBI_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Introduction Basic Least Squares [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_01.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_01_part%202_v2.2dbf2710eede11e49567a114c4e99f58/full/360p/index.mp4?Expires=1588896000&Signature=MxkGMH9NKKhcC7crEwp9YdexV6aH-0uv8Jvv5ix4Pb05kKaXbPnq2glAn~gOI83xRNaIIRZ8m70tEvoeNSbvMKaCfTxwNHiXfxtD8SyU7Q9tQDZIgbD5AwlngNEkDtLd7vHZkw9Dx-mrxN~M2~JeH04LFrG~a7bDPvWvLYA~9e0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Techical Details (Skip if you´d like) [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_01.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_01_part%203_v2.9b99c0a0eedf11e485185120c46a5185/full/360p/index.mp4?Expires=1588896000&Signature=D22st2738CYQxINsIj6JDNnw55vDNFxWMmwY1kul9dlWncwMQk~WDKEQ5irsMpMElXNpUPQtFLXS2o-vW-~zwzxNWq~bNpKM9~BDQ2fyqykVa-t7r-ZPnbx5~E~hrs1UAcNe0rv3aHDdV3fjN8Jqy4OboJ1FHAFqAxbq3vJaBEM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Introduction Data Example [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_01.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_01_part%204_v2.1fbca820eee011e4967177b1467ceacb/full/360p/index.mp4?Expires=1588896000&Signature=ZQrkkPwbyTqJTez7sIb1kFFznAbY417CSdEB7q0ljPBe-95QUb-FRXfyJIKfUX5DX5zN7PkrS-fNpvHuB5Nq0G5NZVZZ6FslJY6cCncMFFlWEkxlNsy42JXIuQnITJPG04YggLlA7dg1tsOpNqml0LLvXqtbGIuIaQLcQJWi~Tk_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Linear least squares**  
+
+* Notation and Bacground [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_02.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_02_v2.638fb4b0337511e495b12338f50c231c/full/360p/index.mp4?Expires=1588896000&Signature=CJdeTicYWomrrYIwGeJrizflvI-gQG7Kxftv~ldedfduEKM0fFwyGSdf~wkcFctqAExyHfH4vrz-D5etFCF8IO6eoTIsyKa2rOJQrgrUPS2PrVNK5S3swPBXz8bLj69fjVGBhPHmVgfw8da3lPoM5bkls8TdMr5utaaB6fWWYWE_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Linear Least Squares [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_03%20part%201.c80635e0eee111e48370d10645674228/full/360p/index.mp4?Expires=1588896000&Signature=Rn9eU6WLyi~MUkFlgKG9fCfugTkTt15UeWz0tCuAdm1rRylPsh1ZZ~93WnLwbb4kmQXT30sBuj434QAPiB7oeKaH4CqLD0t~0NHQZ1EkpF1W~9XIsg87cxqXNVV5~nqNF-1Ckzz4t2IxnX~AaVvFFc2lybyp4cUKRMkaEyi6roM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Linear Least Squares Coding Example  [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_03%20Part%202.7221b9f0eee211e49d7c9353eb671520/full/360p/index.mp4?Expires=1588896000&Signature=V40UxxSTbZMDjBrx3Rfu5ITj~nc91mIEbflhTyHlyfrvRQt6KgzsTjC0XaNtGNi6fM3VWZarlJOu1Bs4hjtJEE~-3O2IYx--7V~OE0radG76iuBlxUUuJSpQ8H7mDp6UA2ht~cHsRSVAy1Ydg6aWas2gMo9YnT8spn1frsNNpWM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Technical Details (Skip if you´d like)  [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_03%20Part%203.e6f8f620eee311e49d7c9353eb671520/full/360p/index.mp4?Expires=1588896000&Signature=gRUvDGn1MRXFCSFKunsN5i6LkOdrT~xdweNhuAicEPx3KOYy~NcB43~Fck7oMbBgTH1tp17opxgYXy0W-E~6vUbDrj46mTwrED6Mt9FcLGHEAU9d3Vxjy9efuSrXOma4CepYwapEe4dEny34zIBH8uhOcG-~-LoBTH1xfWEN8hM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Regression to the Mean**  
+
+* Regression to the Mean  [Video](https://d18ky98rnyall9.cloudfront.net/01_04_v2.878f9980356d11e4b4204f2568d553df/full/360p/index.mp4?Expires=1588896000&Signature=Vfw4XNovrbnEHnlI7y1RzcyISfchbNv9kOQHOIzxQuepTuacOlILcqhf4qU1wTixtYhhoxqd5lZ8rQc2rB6S8iZsv54Gx5R88U6sh8FbilMbsDeskZZc24SHgiPXeoir348ycAzm0MEjrFy7e7zEKp5Ftas45OCP9qne5Izqlug_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Practical R Exercises in swirl**  
+
+* Practice Programming Assignment: swirl Lesson 1: Introduction  
+* Practice Programming Assignment: swirl Lesson 2: Residuals  
+* Practice Programming Assignment: swirl Lesson 3: Least Squares Estimation  
+
+swirl offers a variety of interactive courses, but for our purposes, you want the one called Regression Models. If this is your first time using swirl, it will prompt you to install the Regression Models course automatically. If you've used swirl in the past, you will need to type the following from the R prompt:  
+**install_from_swirl("Regression Models")**  
+
+[**Github**](https://github.com/DataScienceSpecialization/courses)  
+
+## Q-1 
+
+Consider the data set given below  
+**x <- c(0.18, -1.54, 0.42, 0.95)**  
+And weights given by  
+**w <- c(2, 1, 3, 1)** 
+
+Give the value of $\mu$ that minimizes the least squares equation  
+$$ 
+\begin{align} 
+\sum_{i=1}^n w_i(x_i - \mu)^2 
+\end{align} 
+$$ 
+( x ) 0.1471  
+(   ) 1.077  
+(   ) 0.300  
+(   ) 0.0025  
+
+**Answare:**  
+
+```{r, question1, echo=TRUE}
+x <- c(0.18, -1.54, 0.42, 0.95)
+w <- c(2, 1, 3, 1)
+
+sum(w * x) / sum(w)
+
+```
+**Detaills**  
+Video Linear least squares - [Notation and Background](https://d3c33hcgiwev3.cloudfront.net/01_02_v2.638fb4b0337511e495b12338f50c231c/full/360p/index.mp4?Expires=1588896000&Signature=UC0c0uo4MUl1fJ21WNk8xGWktLi3lz2N4-Qw7T9yvVrrCvsCQkpVE2R1vlbhoKmVKMKZgGTlEA8a48pVfgh2SVQUOWxFUwI4Cg1PO-RLsEJAkgSU5U3V4QILq0Epp5SqnSh3izLzsDV4uBfE442cUl0VSOHO-uphtls6GahXN4k_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+Video [Introduction: Basic Least Squares](https://d18ky98rnyall9.cloudfront.net/01_01_part%202_v2.2dbf2710eede11e49567a114c4e99f58/full/360p/index.mp4?Expires=1588896000&Signature=MxkGMH9NKKhcC7crEwp9YdexV6aH-0uv8Jvv5ix4Pb05kKaXbPnq2glAn~gOI83xRNaIIRZ8m70tEvoeNSbvMKaCfTxwNHiXfxtD8SyU7Q9tQDZIgbD5AwlngNEkDtLd7vHZkw9Dx-mrxN~M2~JeH04LFrG~a7bDPvWvLYA~9e0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_01.pdf)  
+Solution to minimize is:  
+$$
+\frac{\sum_{i=1}^n w_i x_i}{\sum_{i=1}^n w_i}.
+$$
+
+## Q-2
+
+Consider the following data set  
+  x <- c(0.8, 0.47, 0.51, 0.73, 0.36, 0.58, 0.57, 0.85, 0.44, 0.42)  
+  y <- c(1.39, 0.72, 1.55, 0.48, 1.19, -1.59, 1.23, -0.65, 1.49, 0.05)  
+  
+Fit the regression through the origin and get the slope treating y
+as the outcome and x as the regressor. (Hint, do not center the data since we want regression through the origin, not through the means of the data.)
+
+(   ) -1.713  
+(   ) 0.59915  
+(   ) -0.04462  
+( x ) 0.8263  
+
+**Answare:**  
+
+**lm(Dependent/outcome/predicted ~ independet/Predictor)**  
+
+```{r, question2, echo=TRUE}
+x <- c(0.8, 0.47, 0.51, 0.73, 0.36, 0.58, 0.57, 0.85, 0.44, 0.42)  
+y <- c(1.39, 0.72, 1.55, 0.48, 1.19, -1.59, 1.23, -0.65, 1.49, 0.05)
+
+#coef(lm(x~y))
+
+lm(y~x -1) # Dependent/outcome/predicted ~ independet/Predictor
+   
+```
+
+**Detaills**  
+Video [Linear Least Squares Coding Example](https://d3c33hcgiwev3.cloudfront.net/01_03%20Part%202.7221b9f0eee211e49d7c9353eb671520/full/360p/index.mp4?Expires=1588896000&Signature=ImfUjRF1hMBAhTgAZhOZq2BI2jcs5FUGlu1R9UzDoWOGFB9Ni18Y3OpjwP9r3c9IfVMPstdWVxX4v2ZoNG5Gx045RRYtmEvuS7IX~Tt8mSdeKJZp94sAb~CvbcSEP~XoQD4sOWILuL7XqnzKcFE4yOGfOehcznZJ0V96eI8mN2Y_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)   
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf) 
+
+## Q-3
+
+Do **data(mtcars)** from the datasets package and fit the regression model with mpg as the outcome and weight as the predictor. Give the slope coefficient.
+
+(   ) 30.2851  
+( x ) -5.344  
+(   ) 0.5591  
+(   ) -9.559  
+
+**Answare:**  
+  
+```{r, question3, echo=TRUE}
+data("mtcars")
+
+coef(lm(mtcars$mpg ~ mtcars$wt))[2]
+   
+```
+
+**Detaills**  
+Video [Linear Least Squares Coding Example](https://d3c33hcgiwev3.cloudfront.net/01_03%20Part%202.7221b9f0eee211e49d7c9353eb671520/full/360p/index.mp4?Expires=1588896000&Signature=ImfUjRF1hMBAhTgAZhOZq2BI2jcs5FUGlu1R9UzDoWOGFB9Ni18Y3OpjwP9r3c9IfVMPstdWVxX4v2ZoNG5Gx045RRYtmEvuS7IX~Tt8mSdeKJZp94sAb~CvbcSEP~XoQD4sOWILuL7XqnzKcFE4yOGfOehcznZJ0V96eI8mN2Y_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)   
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf)  
+
+
+## Q-4
+
+Consider data with an outcome (Y) and a predictor (X). The standard deviation of the predictor is one half that of the outcome. The correlation between the two variables is .5. What value would the slope coefficient for the regression model with **Y** as the outcome and **X** as the predictor?  
+
+(   ) 3  
+(   ) 0.25  
+( x ) 1  
+(   ) 4  
+  
+**Answare:**  
+  
+```{r, question4, echo=TRUE}
+## Revisiting Galton's data  
+### Double check our calculations using R  
+correlation <- 0.5  
+sd_y <- 4 # insert any value for standard deviation of the predicted (Y)  
+sd_x <- sd_y/2  # standard deviation of predictor is one half that outcome
+
+#beta1 <- cor(y, x) *  sd(x) / sd(y)
+correlation * sd_y/sd_x
+
+```
+
+**Detaills**  
+Video [Linear Least Squares](https://d3c33hcgiwev3.cloudfront.net/01_03%20part%201.c80635e0eee111e48370d10645674228/full/360p/index.mp4?Expires=1588896000&Signature=jMnVICPg43WorDghmhKy9thGsA2l1QQ~fEmZlHLV5xzPUovl9A-ymCcC-o5ocJWH96MTe1GqS86OrJDlkpk5rmIZ~xD79xL89Qbmhm6JEJazzJ-MxNGQ9GL8Fcn~SjkhttCCWZLkJZmgT6ezyUrpJoX1DiuT76sRtpGK9FpWXe0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+Video [Linear Least Squares Coding Example](https://d3c33hcgiwev3.cloudfront.net/01_03%20Part%202.7221b9f0eee211e49d7c9353eb671520/full/360p/index.mp4?Expires=1588896000&Signature=ImfUjRF1hMBAhTgAZhOZq2BI2jcs5FUGlu1R9UzDoWOGFB9Ni18Y3OpjwP9r3c9IfVMPstdWVxX4v2ZoNG5Gx045RRYtmEvuS7IX~Tt8mSdeKJZp94sAb~CvbcSEP~XoQD4sOWILuL7XqnzKcFE4yOGfOehcznZJ0V96eI8mN2Y_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf) 
+
+*##Revisiting Galton's data*  
+*###Double check our calculations using R*  
+
+y <- galton$child  
+
+x <- galton$parent   
+beta1 <- cor(y, x) *  sd(y) / sd(x)  
+beta0 <- mean(y) - beta1 * mean(x)  
+rbind(c(beta0, beta1), coef(lm(y ~ x)))  
+
+*## Revisiting Galton's data*  
+*### Reversing the outcome/predictor relationship*  
+
+beta1 <- cor(y, x) *  sd(x) / sd(y)  
+beta0 <- mean(x) - beta1 * mean(y)  
+rbind(c(beta0, beta1), coef(lm(x ~ y)))   
+
+## Q-5
+
+Students were given two hard tests and scores were normalized to have empirical mean 0 and variance 1. The correlation between the scores on the two tests was 0.4. What would be the expected score on Quiz 2 for a student who had a normalized score of 1.5 on Quiz 1?  
+
+(   ) 0.16  
+(   ) 0.4  
+(   ) 1.0  
+( x ) 0.6    
+
+**Answare:**  
+  
+```{r, question5, echo=TRUE}
+#nor_mean <- 0
+#variance <- 1
+correlation_X_Y <- 0.4 # correlationship of coefficient
+x <- 1.5
+
+#if x is 1.5 , then y?
+x * correlation_X_Y
+   
+```
+
+**Detaills**  
+Video [Linear Least Squares Coding Example](https://d3c33hcgiwev3.cloudfront.net/01_03%20Part%202.7221b9f0eee211e49d7c9353eb671520/full/360p/index.mp4?Expires=1588896000&Signature=ImfUjRF1hMBAhTgAZhOZq2BI2jcs5FUGlu1R9UzDoWOGFB9Ni18Y3OpjwP9r3c9IfVMPstdWVxX4v2ZoNG5Gx045RRYtmEvuS7IX~Tt8mSdeKJZp94sAb~CvbcSEP~XoQD4sOWILuL7XqnzKcFE4yOGfOehcznZJ0V96eI8mN2Y_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)   
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf)  
+
+## Q-6
+
+Consider the data given by the following.  
+**x <- c(8.58, 10.46, 9.01, 9.64, 8.86)**  
+What is the value of the first measurement if x were normalized (to have mean 0 and variance 1)?  
+
+(   ) 8.58  
+( x ) -0.9719  
+(   ) 9.31  
+(   ) 8.36  
+
+**Answare:**  
+  
+```{r, question6, echo=TRUE}
+x <- c(8.58, 10.46, 9.01, 9.64, 8.86)
+#nor_mean <- 0
+#variance <- 1
+y <- (x-mean(x))/sd(x)
+y[1] # first element
+```
+
+**Detaills**  
+Video [Regression to the Mean](https://d3c33hcgiwev3.cloudfront.net/01_04_v2.878f9980356d11e4b4204f2568d553df/full/360p/index.mp4?Expires=1588896000&Signature=JzOYgNumzYTfdI0zRxPrlxUWwRjywVb8NpM3Na~oCjlpZQJA6wkWmqa5teygc9mylJRmYhLwburBgDh~tmcTCPAE3KqpIIM2mq2xXL10Kc544JdkA0wsQqefNstp6IQGb4ulrCJRi8wRNNS-wZr1hGxMiMPBXR8cLuQzFkGJ7L8_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)    
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf)  
+Recall that you normalize data by subtracting its mean and dividing by its standard deviation.  
+Text from Practice Programming Assignment: swirl Lesson 3: Least Squares Estimation
+
+## Q-7
+
+Consider the following data set (used above as well). What is the intercept for fitting the model with x as the predictor and y as the outcome?  
+
+x <- c(0.8, 0.47, 0.51, 0.73, 0.36, 0.58, 0.57, 0.85, 0.44, 0.42)  
+y <- c(1.39, 0.72, 1.55, 0.48, 1.19, -1.59, 1.23, -0.65, 1.49, 0.05)  
+
+(   ) -1.713  
+( x ) 1.567  
+(   ) 2.105  
+(   ) 1.252  
+
+**Answare:**  
+  
+```{r, question7, echo=TRUE}
+x <- c(0.8, 0.47, 0.51, 0.73, 0.36, 0.58, 0.57, 0.85, 0.44, 0.42)  
+y <- c(1.39, 0.72, 1.55, 0.48, 1.19, -1.59, 1.23, -0.65, 1.49, 0.05)
+
+coef(lm(y ~ x))[2]
+
+plot(as.numeric(as.vector(x)), 
+   as.numeric(as.vector(y)),
+   xlim=c(-2,2),ylim=c(-2,2),
+   xlab = "x", ylab = "y")
+   #lm1 <- lm(x ~ y)
+   #lines(y,lm1$fitted,col="green",lwd=3) #????
+   abline(h=0,col="gray")
+   abline(v=0,col="gray")
+   abline(mean(y)-mean(x)*cor(y,x)*sd(y)/sd(x),
+   sd(y)/sd(x)*cor(y,x),
+   lwd=3,col="red")
+   #abline(mean(y)-mean(x)*sd(y)/sd(x)/cor(y,x),
+   #sd(y)*cor(y,x)/sd(x),
+   #lwd=3,col="blue")
+   #abline(mean(y)-mean(x)*sd(y)/sd(x),
+   #sd(y)/sd(x),
+   #lwd=2)
+   #points(mean(x),mean(y),cex=2,pch=19)
+
+#centerilize and normalize
+xc<-(x-mean(x))/sd(x)
+yc<-(y-mean(y))/sd(y)
+plot(xc,yc,ylim=c(-2,2),xlim=c(-2,2))
+abline(lm(yc~xc),col="blue", lwd=3)
+abline(h=0,col="gray")
+abline(v=0,col="gray")
+
+```
+
+**Detaills**  
+Video Linear Least Squares Coding Example  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf)  
+
+## Q-8
+
+You know that both the predictor and response have mean 0. What can be said about the intercept when you fit a linear regression?  
+
+( x ) It must be identically 0.  
+(   ) It is undefined as you have to divide by zero.  
+(   ) It must be exactly one.  
+(   ) Nothing about the intercept can be said from the information given.  
+
+**Answare:**  
+  
+```{r, question8, echo=TRUE}
+x <- c(-5,-1,1,5)
+y <- c(-8,-4,4,8)
+mean(x)
+mean(y)
+
+coef(lm(y~x))[1]
+
+plot(x,y,ylim=c(-10,10),xlim=c(-10,10))
+abline(lm(y~x),col="blue", lwd=3)
+abline(h=0,col="gray")
+abline(v=0,col="gray")
+```
+
+**Detaills**  
+Video Linear Least Squares Coding Example  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf)  
+
+## Q-9
+
+Consider the data given by  
+**x <- c(0.8, 0.47, 0.51, 0.73, 0.36, 0.58, 0.57, 0.85, 0.44, 0.42)**  
+What value minimizes the sum of the squared distances between these points and itself?  
+
+(  ) 0.36  
+(  ) 0.44  
+(  ) 0.8  
+( x ) 0.573  
+
+**Answare:**  
+  
+```{r, question9, echo=TRUE}
+x <- c(0.8, 0.47, 0.51, 0.73, 0.36, 0.58, 0.57, 0.85, 0.44, 0.42)
+mean(x)   
+
+```
+
+**Detaills**  
+Video [Introduction: Basic Least Squares](https://d18ky98rnyall9.cloudfront.net/01_01_part%202_v2.2dbf2710eede11e49567a114c4e99f58/full/360p/index.mp4?Expires=1588896000&Signature=MxkGMH9NKKhcC7crEwp9YdexV6aH-0uv8Jvv5ix4Pb05kKaXbPnq2glAn~gOI83xRNaIIRZ8m70tEvoeNSbvMKaCfTxwNHiXfxtD8SyU7Q9tQDZIgbD5AwlngNEkDtLd7vHZkw9Dx-mrxN~M2~JeH04LFrG~a7bDPvWvLYA~9e0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_01.pdf)  
+Finding the middle via least squares  
+One definition, let Yi be the height of child i for i = 1, ..., n = 928 , then define the middle as the value of $\mu$ that minimizes.  
+Give the value of $\mu$ that minimizes the least squares equation  
+$$ 
+\begin{align} 
+\sum_{i=1}^n (Y_i - \mu)^2 
+\end{align} 
+$$ 
+
+## Q-10
+
+Let the slope having fit Y as the outcome and X as the predictor be denoted as β1. Let the slope from fitting X as the outcome and Y as the predictor be denoted as γ1. Suppose that you divide β1 by γ1, in other words consider β1/γ1.  What is this ratio always equal to?  
+
+(   ) Cor(Y, X)  
+( x ) Var(Y) / Var(X)  
+(   ) 2SD(Y) / SD(X) 
+(   ) 1  
+
+**Answare:**  
+  
+```{r, question10, echo=TRUE}
+x <- c(0.8, 0.47, 0.51, 0.73, 0.36, 0.58, 0.57, 0.85, 0.44, 0.42)  
+y <- c(1.39, 0.72, 1.55, 0.48, 1.19, -1.59, 1.23, -0.65, 1.49, 0.05)
+
+coef(lm(y~x))[2]/coef(lm(x~y))[2]
+
+var(y) / var(x)
+
+```
+
+**Detaills**  
+Video Linear Least Squares Coding Example  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_03.pdf)  
+
+# Week #2 {.tabset .tabset-fade} 
+Quiz:  
+
+## Overview  
+**Statistical linear regression models**  
+
+* Statistical Linear Regression Models [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/01_05_part%201.b615b800efa011e48932e344c590e136/full/360p/index.mp4?Expires=1588982400&Signature=YTQG2xd6D-YItYyZGpzzp~ox-F6HwT86Ha6pWG~MvZdpmrv1jZjcwCS6dRF~stY3aYyPoVI7xM8Vu6DXreS6Y3brHqKZ1ChJBchTV3rNbKyFYLN6jT8DQOhMWFPnVYWa7rzWGzXrvqVenGNTsVW6C1YC6UXPnFNFG~75uwPo3XM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Interpreting Coefficients [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/01_05_part%202.4020ebf0efa111e4b0f409f4dbbe38ae/full/360p/index.mp4?Expires=1589068800&Signature=B9dbP3cr~s5aIRC1lOwbiklmjO-b2u8TRqCwiR107~cxZmGTAGcNFaIdFOdIwgOKQmrQROYGXiUcGPAeh4UhK69Apo8Q3hYYearcs5eu1KjHGr4WV-b-ljvwg6xDnh4yxNnSeA~aTfQeLK-cbnjsIix8Yjnskh2NfJ7PigV24nc_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Linear Regression for Prediction [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/01_05_part%203.8ab2f850efa311e49eca3fc2c0c1a82b/full/360p/index.mp4?Expires=1589068800&Signature=WK08cSdwM308bLTVQ9Y3LBv9lkQsP-HDmAGXVnvo2j-74jc3gLrqJGWl5h8ipDc8uJ6K6dslpnm5b19C31Hzr6-bXM1rcVm8nq-W66aXCOIV13v22ByB5SAxn8ZPY9-c5z31jfPhICXAsTngom4HGzYocW~d~096qNzN6TepGIk_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Residuals**  
+
+* Residuals [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_06.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_06_part%201.61d34bf0efa411e49a42317092163f3a/full/360p/index.mp4?Expires=1589328000&Signature=VNwvjHCcBAjOkFx75vGdGmcKoavyljncToBOgMUbQLSrwuqNXu1ZAY00ElyTcEmUR~2E-GNPercGksLgGxB84NcOGbrapfWPnPr6sHnf9U7s56s9dMz9UeChhebl0MQ-pIcZ~EJVWA~Ob4MdsKBueeePw2omfxrrs3yyoOCZlS0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Residuals, Coding Example [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_06.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_06_part%202.36a20e70efa511e491f1dd5635bc7260/full/360p/index.mp4?Expires=1589328000&Signature=HByLNNf0WQo0rPdf0xs10awIxsJ5IRku7vCL5jPY8DVsJqH2uBZzdC3xPfy8GvYIdORjpRaZP1emCg9gI9tpn2za1V1Vaw6g5l-7fDPM0Iuz-QU-1lMcWMZy9NPp2h3Ql8QwiIxvYDCqUuuqAjoiCpfr4uwqg2vWttEvqzHOyJg_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Residual Variance [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_06.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/01_06_part%203.f5365b20efa511e49f646518c6f98ed5/full/360p/index.mp4?Expires=1589328000&Signature=Hv2Sh-xBSqSm-Ai2opTVsOQjS2EhEVSyLpvmuqYFSRWFDKQ15EOq9hXxB4ry-X4nuDRF3kLHjrJhvpj01pC5d6Ot6PqgtHyGotesYd3G9OOPnr9bdxE3UYA7fwmWB4QyKP8BVV22~-jBKzvFeBU3WRj1NPFeYzBLBDubHr7w2aI_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Inference in regression**  
+
+* Inference in Regression [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_07.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/01_07_part%201.8688d9d0efa711e4920c67879d019b2c/full/360p/index.mp4?Expires=1589500800&Signature=GAiVL3~pTMz1Bydj9CPZcFk3h0UZvp~1A7OwNwCst1cHEo7VoJvk5D7wdxokU40ZdHgqFjJnYp0mxeG3t40R5kocetGli5dtrwMXrwMOnJUqlwa6v3zfcbhJbaUH~zQwt7IUgMAyekGQAF7uKJrxRDkA8sDInNYt5QVB~0U632g_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Coding Example [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_07.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/01_07%20part%202.0a23cca0efa811e49f646518c6f98ed5/full/360p/index.mp4?Expires=1589500800&Signature=Z-5D25K9g46EchUj4Qk80neNAlBoLr7pmwpZGlQUiErqBH29KOo8z0CGlu0~EisYLYOq-Ljo3zamW6qTKIh-zk6iGlbyMYvp8PSX3LDWb1Y-Vemmsw-pFwVqsGL1hVOhUDfYD5WuS3UaBPqvp08B4yVw7JFKyjcNQ1FcHiqopJY_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Prediction [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_07.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/01_07%20part%203.c23a1c90efa811e4838791dc487300ee/full/360p/index.mp4?Expires=1589500800&Signature=Bu6aWPqDUnTnvuZaCXv4WQPfDeoMnj3KlS8aWSP-yDRIFmQHoPuqjbOrwWHVshIsapCup1VF5oPAkj0bbXqq~tWKYNdVVT5bZL9cjbrHrq7bcDb8YIQmS9miSYdWgOtgS-QwsBvK8c6KC~2T9NXesBOUoWqjNbFVOt1hMsnFgMc_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**For the project**  
+
+* Really, really quick intro to knitr  [Video](https://d3c33hcgiwev3.cloudfront.net/B3G5DbAAEeWKww7cgKAxYw.processed/full/360p/index.mp4?Expires=1589500800&Signature=B0md7cC4HXRi~iHtriVifdUcq7~r4dutvGLsGKVQlVnw~UNiUG9xQQ~2gRBEBm0OBlnSfpQKuySBkg9i2Sw7kUE0yu2A9PabDG5QgpkQtzl~4Rnz~peLI~OQxyCgeCD8S4Cp5DbjEByfm8YTbmpWG2jN2QM2PRWoN3pQlseOdSk_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Practical R Exercises in swirl**  
+
+* Programming Assignment: swirl Lesson 1: Residual Variation  
+* Practice Programming Assignment: swirl Lesson 2: Introduction to Multivariable Regression  
+* Practice Programming Assignment: swirl Lesson 3: MultiVar Examples  
+
+## Q-1 
+
+Consider the following data with x as the predictor and y as as the outcome.  
+**x <- c(0.61, 0.93, 0.83, 0.35, 0.54, 0.16, 0.91, 0.62, 0.62)**  
+**y <- c(0.67, 0.84, 0.6, 0.18, 0.85, 0.47, 1.1, 0.65, 0.36)**  
+
+Give a P-value for the two sided hypothesis test of whether β1 from a linear regression model is 0 or not.  
+
+(   ) 0.391  
+( x ) 0.05296  
+(   ) 0.025  
+(   ) 2.325  
+
+**Answare:**  
+
+```{r, question21, echo=TRUE}
+x <- c(0.61, 0.93, 0.83, 0.35, 0.54, 0.16, 0.91, 0.62, 0.62) #predictor
+y <- c(0.67, 0.84, 0.6, 0.18, 0.85, 0.47, 1.1, 0.65, 0.36)   #outcome
+
+# Long way
+n <- length(x)
+
+beta1 <- cor(x,y)*sd(y)/sd(x)
+beta0 <- mean(y)- beta1 * mean(x)
+e <- y - beta0 - beta1 * x
+sigma <- sqrt(sum(e^2)/(n-2))
+ssx <- sum((x - mean(x))^2)
+seBeta0 <- (1/n+mean(x)^2/ssx)^.5*sigma
+seBeta1 <- sigma / sqrt(ssx)
+tBeta0 <- beta0 / seBeta0
+tBeta1 <- beta1 / seBeta1
+pBeta0 <- 2 * pt(abs(tBeta0), df = n-2, lower.tail = FALSE)
+pBeta1 <- 2 * pt(abs(tBeta1), df = n-2, lower.tail = FALSE)
+coefTable <- rbind(c(beta0, seBeta0, tBeta0, pBeta0), c(beta1, seBeta1, tBeta1, pBeta1))
+colnames(coefTable) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|")
+rownames(coefTable) <- c("(Intercept)", "x")
+
+coefTable
+
+# Easy way - lm(outcome ~ predictor)
+fit <- lm(y~x)
+summary(fit)$coefficients
+message(sprintf("Result is %s",summary(fit)$coefficients[2,4])) 
+```
+**Detaills**  
+Video Inference in regression - [Coding Example](https://d3c33hcgiwev3.cloudfront.net/01_07%20part%202.0a23cca0efa811e49f646518c6f98ed5/full/360p/index.mp4?Expires=1589500800&Signature=Z-5D25K9g46EchUj4Qk80neNAlBoLr7pmwpZGlQUiErqBH29KOo8z0CGlu0~EisYLYOq-Ljo3zamW6qTKIh-zk6iGlbyMYvp8PSX3LDWb1Y-Vemmsw-pFwVqsGL1hVOhUDfYD5WuS3UaBPqvp08B4yVw7JFKyjcNQ1FcHiqopJY_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_07.pdf)  
+
+## Q-2 
+
+Consider the previous problem, give the estimate of the residual standard deviation.  
+
+( x ) 0.223  
+(   ) 0.3552  
+(   ) 0.4358  
+(   ) 0.05296  
+
+**Answare:**  
+
+```{r, question22, echo=TRUE}
+x <- c(0.61, 0.93, 0.83, 0.35, 0.54, 0.16, 0.91, 0.62, 0.62) #predictor
+y <- c(0.67, 0.84, 0.6, 0.18, 0.85, 0.47, 1.1, 0.65, 0.36)   #outcome
+fit <- lm(y~x)
+n <- length(x)
+
+sqrt(sum(fit$residuals^2)/(n-2))
+
+```
+**Detaills**  
+* Programming Assignment: swirl Lesson 1: Residual Variation  
+
+## Q-3 
+
+In the **mtcars** data set, fit a linear regression model of weight (predictor) on mpg (outcome). Get a 95% confidence interval for the expected mpg at the average weight. What is the lower endpoint?  
+
+(   ) 21.190  
+(   ) -4.00  
+(   ) -6.486  
+( x ) 18.991  
+
+**Answare:**  
+
+```{r, question23, echo=TRUE}
+data("mtcars")
+#mtcars
+mu <- data.frame(wt=c(mean(mtcars$wt)))
+fit <- lm(mpg ~ wt, data = mtcars)
+sumCoef <- summary(fit)$coefficients
+interval <- data.frame(predict(fit,newdata=mu,interval="confidence"))
+interval
+message(sprintf("Lower endpoint is %s",interval[2]))
+
+```
+**Detaills**  
+Video Inference in regression - [Coding Example](https://d3c33hcgiwev3.cloudfront.net/01_07%20part%202.0a23cca0efa811e49f646518c6f98ed5/full/360p/index.mp4?Expires=1589500800&Signature=Z-5D25K9g46EchUj4Qk80neNAlBoLr7pmwpZGlQUiErqBH29KOo8z0CGlu0~EisYLYOq-Ljo3zamW6qTKIh-zk6iGlbyMYvp8PSX3LDWb1Y-Vemmsw-pFwVqsGL1hVOhUDfYD5WuS3UaBPqvp08B4yVw7JFKyjcNQ1FcHiqopJY_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_07.pdf)  
+
+## Q-4 
+
+Refer to the previous question. Read the help file for **mtcars**. What is the weight coefficient interpreted as?  
+
+(   ) The estimated expected change in mpg per 1 lb increase in weight.  
+( x ) The estimated expected change in mpg per 1,000 lb increase in weight.  
+(   ) The estimated 1,000 lb change in weight per 1 mpg increase.  
+(   ) It can't be interpreted without further information  
+
+**Answare:**  
+
+```{r, question24, echo=TRUE}
+data("mtcars")
+mtcars
+?mtcars
+
+```
+**Detaills**  
+NA
+
+## Q-5 
+
+Consider again the **mtcars** data set and a linear regression model with mpg as predicted by weight (1,000 lbs). A new car is coming weighing 3000 pounds. Construct a 95% prediction interval for its mpg. What is the upper endpoint?  
+
+( x ) 27.57  
+(   ) 14.93  
+(   ) -5.77  
+(   ) 21.25  
+
+**Answare:**  
+
+```{r, question25, echo=TRUE, warning=FALSE}
+library(ggplot2)
+library(UsingR)
+
+data("mtcars")
+
+fit <- lm(mpg ~ wt, mtcars)
+result <- predict(fit,data.frame(wt=3.000), interval="prediction")
+result
+
+plot(as.numeric(as.vector(mtcars$wt)), #predictor to check mpg with 3000 wt
+    as.numeric(as.vector(mtcars$mpg)), #outcome
+    pch = 21, col = "black", bg = "black", xlab = "Weight", ylab = "Mpg")
+    #original regression line, mpg as outcome, wt as predictor
+    abline(fit, lwd =0.5, col = "red")
+    abline(v = 3.00, col = "blue", lwd = 0.5)
+    abline(h = result[1], col = "blue", lwd = 0.5)
+    #big point of intersection
+    points(3.000, result[1], cex = 2, pch = 19, col = "blue")
+    points(3.000, result[2], cex = 2, pch = 19, col = "gray")
+    points(3.000, result[3], cex = 2, pch = 19, col = "gray")
+    text(4.1, 27.4,
+     "Gray points indicates the interval limits)")
+  
+```
+
+**Detaills**  
+Video Inference in regression - [Prediction](https://d3c33hcgiwev3.cloudfront.net/01_07%20part%203.c23a1c90efa811e4838791dc487300ee/full/360p/index.mp4?Expires=1589587200&Signature=TWV2tTdS2pJVkxTRVvV0JzDiC9RwdA14Z~VvxVqFbiVXHC-XDOEYKq52IP5IfhBg7dCAOZdsNp-jDDPw~TamqcqQzf-vN2vEP6oxot5wcvyrP3VThuaYtN1f~xxKMfQ03fLHrHt0O-x6MW7l6-bpMiOebrIuTMAJHKl5wrfiUUo_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_07.pdf)  
+
+## Q-6 
+
+Consider again the **mtcars** data set and a linear regression model with mpg as predicted by weight (in 1,000 lbs). A “short” ton is defined as 2,000 lbs. Construct a 95% confidence interval for the expected change in mpg per 1 short ton increase in weight. Give the lower endpoint.  
+
+(   ) -6.486  
+(   ) -9.000  
+( x ) -12.973  
+(   ) 4.2026  
+
+**Answare:**  
+As the weight unit is twice the original one, this means that all the predictor values need to be divived by two. So the coefficients will be multiplied by 2.
+
+```{r, question26, echo=TRUE, warning=FALSE}
+data("mtcars")
+
+fit2 <- lm(mpg ~ I(wt/2), data  = mtcars) # I is a function
+tbl2 <- summary(fit2)$coefficients
+mn <- tbl2[2,1]      #mean is the estimated slope
+std_err <- tbl2[2,2] #standard error
+#Two sides T-Tests
+result <- mn + c(-1,1) * qt(0.975, df = fit2$df) * std_err
+result
+message(sprintf("Lower endpoint is %s",result[1]))
+```
+**Detaills** 
+To avoid this confusion, the function I() can be used to bracket those portions of a model formula where the operators are used in their arithmetic sense. For example, in the formula y ~ a + I(b+c), the term b+c is to be interpreted as the sum of b and c.  
+
+Video Statistical linear regression models - [Linear Regression for Prediction](https://d3c33hcgiwev3.cloudfront.net/01_05_part%203.8ab2f850efa311e49eca3fc2c0c1a82b/full/360p/index.mp4?Expires=1589673600&Signature=Z5VVntDbMkRPdYPzUv30oGsqP7j3UzvXpaDJObW28pA-t8jazeJ3xePtBWUmdshrn90lyr8PrF1WLZOflAYOkv7B-fe4mvgWt8-h8-s2na-YdsjtUVKiKcKi7sDOYLRVIo2faeyO8sL~SuHeiMccVrfxed4DAvSX81u51v-toLo_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf)  
+
+## Q-7 
+
+If my X from a linear regression is measured in centimeters and I convert it to meters what would happen to the slope coefficient?  
+
+(   ) It would get divided by 100  
+(   ) It would get divided by 10  
+(   ) It would get multiplied by 10  
+( x ) It would get multiplied by 100.  
+
+**Answare:**  
+Changing scale
+```{r, question27, echo=TRUE}
+
+
+```
+**Detaills**  
+Video Statistical linear regression models - [Interpreting Coefficients](https://d3c33hcgiwev3.cloudfront.net/01_05_part%202.4020ebf0efa111e4b0f409f4dbbe38ae/full/360p/index.mp4?Expires=1589673600&Signature=hYNsYnuT-RCJbDR5dlhYrh2r49b3jY976yLQg3xbbEGBip9bgS9s0e6HAPWHxWKY4L1~omDwhXJPlUmLzCCLdavqJGlBiaTMgCRoUO01vBIMfmCoVdMfQCg-y6xHnlWeqbtgKe7~gtLwmKqVxE1vccfvFA0nwB50HRokfF2-OUA_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf)  
+
+## Q-8 
+
+I have an outcome, **Y**, and a predictor, **X** and fit a linear regression model with Y = $β_0  + β_1$ **X** + $ϵ$ to obtain $\hatβ_0$ and $\hatβ_1$. What would be the consequence to the subsequent slope and intercept if I were to refit the model with a new regressor, **X** + $c$ for some constant, $c$?
+
+( x ) The new intercept would be $\hatβ_0 - c\hatβ_1$  
+(   ) The new slope would be $c\hatβ_1$  
+(   ) The new intercept would be $\hatβ_0 + c\hatβ_1$  
+(   ) The new slope would be $\hatβ_1 + c$  
+
+**Answare:**  
+It will change the intercept. If we add a constant to the predictor, it should be substracted to keep the consistency of the equations.
+
+```{r, question28, echo=TRUE}
+
+```
+**Detaills**  
+Video Statistical linear regression models - [Interpreting Coefficients](https://d3c33hcgiwev3.cloudfront.net/01_05_part%202.4020ebf0efa111e4b0f409f4dbbe38ae/full/360p/index.mp4?Expires=1589673600&Signature=hYNsYnuT-RCJbDR5dlhYrh2r49b3jY976yLQg3xbbEGBip9bgS9s0e6HAPWHxWKY4L1~omDwhXJPlUmLzCCLdavqJGlBiaTMgCRoUO01vBIMfmCoVdMfQCg-y6xHnlWeqbtgKe7~gtLwmKqVxE1vccfvFA0nwB50HRokfF2-OUA_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf)  
+
+## Q-9 
+
+Refer back to the mtcars data set with mpg as an outcome and weight (wt) as the predictor. About what is the ratio of the the sum of the squared errors, $\sum_{i=1}^n (Y_i - \hat Y_i)^2$ when comparing a model with just an intercept (denominator) to the model with the intercept and slope (numerator)?  
+
+( x ) 0.25  
+(   ) 4.00  
+(   ) 0.50  
+(   ) 0.75  
+
+**Answare:**  
+
+```{r, question29, echo=TRUE}
+data("mtcars")
+
+fit <- lm(mpg~wt, data = mtcars)
+fit2 <- lm(mpg~1,data=mtcars) # modelo nulo, com apenas o intercept
+
+numerator <- sum((predict(fit)-mtcars$mpg)^2)
+denominator <- sum((predict(fit2)-mtcars$mpg)^2)
+numerator/denominator
+?lm
+
+```
+**Detaills**  
+Video Statistical linear regression models - [Linear Regression for Prediction](https://d18ky98rnyall9.cloudfront.net/01_05_part%203.8ab2f850efa311e49eca3fc2c0c1a82b/full/360p/index.mp4?Expires=1589673600&Signature=bNei~5sCqRodeeXWXRAmapm36e0dE-ucOeF3NYV9U0gmbHnzbzGBa8hSDt8RxxRbQq0Qg2Kh5rHD9xRAYrASWIzU1QtQ9ujQpLLOPET8Fd1-yK~Emiusg3l7duZ1mkz3i1T7QD3d-7qJZwwiuYk-cYfcVYKZQHVt4mMwBZ7FEG8_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+Video Inference in regression - [Prediction](https://d18ky98rnyall9.cloudfront.net/01_07%20part%203.c23a1c90efa811e4838791dc487300ee/full/360p/index.mp4?Expires=1589673600&Signature=jSijSoUd6Nl-2IszBs~iH6AdiPMQOQeR7A~fJ8TE~UvXcsChkE8Kdg5L3Qi55sw3xysqoqhEntJ2idNnc6hlQ4-usMYheaoC7SRST0iEzVcztwiehtWlt91epzt0wDEtI7s-IGe1ktRLvcPnWy-HxYcNWPAB7Ar0fWgvNjRv7xo_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_07.pdf) 
+
+## Q-10 
+
+Do the residuals always have to sum to 0 in linear regression?  
+
+(   ) The residuals never sum to zero.  
+(   ) The residuals must always sum to zero.  
+( x ) If an intercept is included, then they will sum to 0.  
+(   ) If an intercept is included, the residuals most likely won't sum to zero.  
+
+**Answare:**  
+
+```{r, question30, echo=TRUE}
+
+
+```
+**Detaills**  
+Video Residuals - [Residuals](https://d18ky98rnyall9.cloudfront.net/01_06_part%201.61d34bf0efa411e49a42317092163f3a/full/360p/index.mp4?Expires=1589673600&Signature=RMkhwo3AhO0-HHADpF5sftf0phhzjShtc0SJuYD64VdU3fXIbMfddDcRwHlu2fcBCcw-l2zlYfoPtqt95tqlWMw9fprDNZWQp4bGaxJ~D9Tmg02u2N09pwC90nMb-p5L2pqujFUj9t8IRm0hLdkDVeGva-e63wDrkyW7ljwE1GA_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_06.pdf)  
+
+
+# Week #3 {.tabset .tabset-fade} 
+Quiz:  
+
+## Overview  
+**Multivariable regression**  
+
+* Multivariable Regression part I [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_01.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/Ses8v7AAEeWDcwpBfwxWiQ.processed/full/360p/index.mp4?Expires=1590278400&Signature=PnHdWsIH2jnVljlZWTTQrVgQZLspi3Lx9xQuNeaRN84LxZ9a-fwvehEb~FYXxAWrc5xpsckowR0ACN2iEuLXAovZNf-qjKukXafVjn2WqK1TuQveERvC~O2y3XFgQyWMbuTyeH-xSn6xvbhHyCUQiLYv~I0npe1z-gJEFil1Pjk_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Multivariable Regression part II [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_01.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/NJsKcLABEeWDcwpBfwxWiQ.processed/full/360p/index.mp4?Expires=1590278400&Signature=H2stF0TdsTkm0Qfcw4s6SYMt3yxAz5IeSe1OUuYP5qUcpfB6VBcnU7r~tCre3iXBPmbvn3PeQYY90s~C2zf~7O1w8NLTAe6RwS4aqvsenfUkVslK26FIBxexRUkL~~7OMWl3zW1j8DHjntZAagnCpmNAAEm5fyC~D-E-aQET3mQ_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Multivariable Regression Continued [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_01.pdf) [Video](https://d18ky98rnyall9.cloudfront.net/PFU7QbACEeWDcwpBfwxWiQ.processed/full/360p/index.mp4?Expires=1589673600&Signature=Em2y-YA4UooTIWXnfxspHk0dkxujzMZWyYGawRYcYicTgHqkrPXbxHCfrtb1-js4ZfNz5C7BROnbxZ5ghMSHMpEo-YbhvmNIO9nhj4fh-snAk4QNgKMosCi6ozb8Y4BbxGqzbAzrlsFxzvEF271~TENUYSFkj7jozopdqBSV7Xg_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Multivariable regression tips and tricks**  
+
+* Multivariable Regression Examples part I [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_02.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/hw1isrADEeWDcwpBfwxWiQ.processed/full/360p/index.mp4?Expires=1590278400&Signature=FmkiywWgLUIE68y9CA8-wOTL01FZe8pEJSm3-s9gRhtHoxB2i2aobQCHAgEkzFjQ9dNvD2~DGkIT3QLwCHoBZBqYZHMpnverHFflbMY5r8dyLXmRXNGLlw3agbXXF58N0hTFtYmbM5v9aRv-Dt8qlUmcvblfNk-D6nnX-rMez7k_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Multivariable Regression Examples part II [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_02.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/wr27vbAEEeWSpg5grrcQqw.processed/full/360p/index.mp4?Expires=1590278400&Signature=SAGKDSia0pg3qeDa8aNnvo1XRGD2XwEuVxqBhy8kAo0rQgX0ejQ7hK-Jtw3e2QCDj36Qs-DXeLp9skPwbWkB5DVg-Sx4j7n1GyIVGvebP~VPJelzGmLPVG~iTbZFvRIsavnBmRleLonyfBAOBfvzw6MNPrcObSTZyV06UbbQ5vw_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Multivariable Regression Examples part III [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_02.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/5dYnY7oIEeWROg75ViZp8Q.processed/full/360p/index.mp4?Expires=1590278400&Signature=MCmQrxBsOOBMG9BJx3QR8O5566kZtuNB1jcZOo~52zWo95reVTFZpOXWiu2UU8aiWgGC588zhSWxUKbHkqOFCcx-yKQ49MuhdyB-stW2V3kbCHXN8RQCnbthYVTkKWE7g96WxhN3Rr04L5yDQnCfSGu7ng28h9RoywmHDV1j0Dc_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Multivariable Regression Examples part IV [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_02.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/02%2002%20part%204%20of%204%20multivariable%20regression%20examples.2204d4603c4511e5b8ed23b8f3a3f8c1/full/360p/index.mp4?Expires=1590278400&Signature=bYEo5IFy88rFEDqdxWNg-HhIQwnlp4GlKAxbf1EJqKRC2PBYpb5omJUkVBtfyIFlrGpIYpQ4AQbxp7Zhu7Hhyr8UUyo4IS-MU32wh8cl0hfV-5lkRsScTjdCLry8xpFCnfuGR~2ei9iqhKmyr5X6~aLBSkWVF4bOgY7sQyC-Ixc_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Adjustment**  
+
+* Adjustment Examples [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_03.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/goV_X7AFEeWSpg5grrcQqw.processed/full/360p/index.mp4?Expires=1590278400&Signature=c~pBERTnYhJlaGnudLUmWvyt~rZYXzJ4GxlCQa36-tyLVq-hue~0BAv-xy~08ip4em88unqhYEH91sZ7shB7hTMN-U5kxxnMdl9MOn-8kiivlOscLrYSXVhcjCqMOq24LyptRZlgi4snddKY0cPccu5KxLPSV~NV-ykfPrGoLGI_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Residuals again**  
+
+* Residuals and Diagnostics part I [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_04.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/02%2004%20v2%20Part%201%20of%203%20Diagnostics.05fee1903c4811e5b0593f033c1351ea/full/360p/index.mp4?Expires=1590278400&Signature=kgeuIW15aaQ8mXgOGl8YqTsXHgEXlG~iaZ7BaipnIxefW-dhj9F9HqFhN1VXoghFrSaLeXDxXBtZqUd-tKj5TVGRy~ctuEjWMgnqLXAkwZrhSU74H95xi2mdh3ZFLa9CW6r6PM5nlBjXXDlF54ljzdOlRN5-xad5TtVWFLWwGHw_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Residuals and Diagnostics part II [Video](https://d3c33hcgiwev3.cloudfront.net/02%2004%20v2%20Part%202%20of%203%20Diagnostics.216decb03d2311e5ab3671d444fa95f0/full/360p/index.mp4?Expires=1590278400&Signature=gqi7CL7fMpCAH3qFx4WcZiZFBxA8DYstajiizG2cC7TGi4FPNHSRjnYs2a9LK9U9IU1mSoMw2JqHCRyBwiMjF4om7ZRgWyq5urVWCk7f3TM61KOHim2NuaXb-FAHB99osyMpuNps0dnGvrTzSglsM1Qilh3wHr~18NUF6tfitxQ_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Residuals and Diagnostics part III [Video](https://d3c33hcgiwev3.cloudfront.net/02%2004%20v2%20Part%203%20of%203%20Diagnostics.89c8b5103d2311e587320561379c0791/full/360p/index.mp4?Expires=1590278400&Signature=PAtMEsvyLBRwIEQSVirL1dzGkVYWZzA1BSQ88zPn33xKgPM1o9o~o6w94VIMB0eHZiRv1sH-A~OcRO1vBrfoM6fDnEr~PVm3p0eJ0rfZM0q0~mo-MHFZeJGc09fel9MmxFGGq40tL2AqvjTZmbuy6s9F7s7Acci3BhKHump7E~c_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Model selection**  
+
+* Model Selection part I [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_05.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/02%2005%20Part%201%20of%203%20Model%20Selection.f4efe3e03d2311e5ac64370b7898bcb1/full/360p/index.mp4?Expires=1590278400&Signature=dbTyLz1Zh8RtZKNZTv3PqtYVH2Sr~BlSNpyUqSW2z-NYoyArR~2sJKk4eUoZE8uZ0wDw92bconigDh2tfvfghito~BBC7tXo1Pe7LJa5sE4Zbm67aa5pS9HK4JPsRJkrpJO9-g4lusT6tu7aKoAWsNCHBi9Q2QYX9YiwcTPPiDk_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Model Selection part II [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_05.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/02%2005%20Part%202%20of%203%20Model%20Selection.24a81df0451711e5a774b93ba5497c85/full/360p/index.mp4?Expires=1590278400&Signature=CbaWeM5MGylePc18mGKfwRawmkEiDr1-lb5ITUV4vAJyovPuPo~UnKGBhFebZHUIhPrdQ6Um0-pG3FCARMh0lIAJhzwIo8jMUJVgZmUKtWTxXLwLR5MqAbadJaucZ~x2MOUgBGIoAU2Yc~2-14iKss4~yvn8iIdq1YELPsrnxUs_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* Model Selection part III [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_05.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/02%2005%20Part%203%20of%203%20Model%20Selection.3ee748d03d2411e59180e72b1892a5b0/full/360p/index.mp4?Expires=1590278400&Signature=dtj-ril6aBBZgpM02XdUrMOTgxjkSLLcL0ZmxyrIpHMoF1RKWhGgg3baCL8C5bxCoDcNgYxRS~0MG-2qEOGo4-fC5UnzVTdDRupAXKucXkRNoDaRrbrcN9PqqUMNailXBCVxHLO7CHWoYK7hzbjUnBWSx8RlumUfP2JoP1plE6M_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Practical R Exercises in swirl**  
+
+* Programming Assignment: swirl Lesson 1: MultiVar Examples2  
+* Programming Assignment: swirl Lesson 2: MultiVar Examples3  
+* Programming Assignment: swirl Lesson 3: Residuals Diagnostics and Variation  
+
+**(OPTIONAL) Practice exercise in regression modeling**  
+Practice Quiz: (OPTIONAL) Data analysis practice with immediate feedback (NEW! 10/18/2017)  
+4 questions  
+
+
+## Q-1 
+
+Consider the **mtcars** data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight as confounder. Give the adjusted estimate for the expected change in mpg comparing 8 cylinders to 4.  
+
+(   ) -4.256  
+( x ) -6.071  
+(   ) -3.206  
+(   ) 33.991  
+
+**Answare:**  
+
+```{r, question31, echo=TRUE}
+data("mtcars")
+head(mtcars)
+sapply(mtcars, class)
+mtcars$cyl <- as.factor(mtcars$cyl)
+sapply(mtcars, class)
+fit <- lm(mpg ~ cyl+wt, data = mtcars)
+result <- summary(fit)$coef
+result
+result[3,1]
+#lm(mpg[cyl==8] ~ wt[cyl==8],mtcars)
+```
+**Detaills**  
+Video Multivariable regression tips and tricks - [Multivariable Regression Examples part II](https://d18ky98rnyall9.cloudfront.net/wr27vbAEEeWSpg5grrcQqw.processed/full/360p/index.mp4?Expires=1590883200&Signature=P~VDLHtxgQHPqMYZN-VxcaQgAl-nmnuDfdybsaEOk6mx8dT3pA2hxQuf~QAriexarl3ninkZCL6O2D9vdkLt30AZLqmu9QSa0kE7WX533EimEuna79bLaBRHydw8~-eeX2oRdIQVmCCK4rmfbIJuejkKS~gxsvJzBFZSTl2t1Q0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_02.pdf)  
+SWIRL - Regression Models-MultiVar Examples2
+
+## Q-2 
+
+Consider the **mtcars** data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight as a possible confounding variable. Compare the effect of 8 versus 4 cylinders on mpg for the adjusted and unadjusted by weight models. Here, adjusted means including the weight variable as a term in the regression model and unadjusted means the model without weight included. What can be said about the effect comparing 8 and 4 cylinders after looking at models with and without weight included?
+
+( x ) Holding weight constant, cylinder appears to have less of an impact on mpg than if weight is disregarded.  
+(   ) Holding weight constant, cylinder appears to have more of an impact on mpg than if weight is disregarded.  
+(   ) Within a given weight, 8 cylinder vehicles have an expected 12 mpg drop in fuel efficiency.  
+(   ) Including or excluding weight does not appear to change anything regarding the estimated impact of number of cylinders on mpg.  
+
+**Answare:**  
+
+```{r, question32, echo=TRUE}
+data("mtcars")
+mtcars$cyl <- as.factor(mtcars$cyl)
+sapply(mtcars, class)
+# unadjusted
+fit <- lm(mpg ~ cyl, data = mtcars)
+# adjusted
+fit2 <- lm(mpg ~ cyl+wt, data = mtcars)
+
+summary(fit)$coef #unadjusted
+summary(fit2)$coef # adjusted
+```
+**Detaills**  
+Video Multivariable regression tips and tricks - [Multivariable Regression Examples part II](https://d18ky98rnyall9.cloudfront.net/wr27vbAEEeWSpg5grrcQqw.processed/full/360p/index.mp4?Expires=1590883200&Signature=P~VDLHtxgQHPqMYZN-VxcaQgAl-nmnuDfdybsaEOk6mx8dT3pA2hxQuf~QAriexarl3ninkZCL6O2D9vdkLt30AZLqmu9QSa0kE7WX533EimEuna79bLaBRHydw8~-eeX2oRdIQVmCCK4rmfbIJuejkKS~gxsvJzBFZSTl2t1Q0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_02.pdf)  
+SWIRL - Regression Models-MultiVar Examples2
+
+## Q-3 
+
+Consider the **mtcars** data set. Fit a model with mpg as the outcome that considers number of cylinders as a factor variable and weight as confounder. Now fit a second model with mpg as the outcome model that considers the interaction between number of cylinders (as a factor variable) and weight. Give the P-value for the likelihood ratio test comparing the two models and suggest a model using 0.05 as a type I error rate significance benchmark.
+
+
+(   ) The P-value is small (less than 0.05). So, according to our criterion, we reject, which suggests that the interaction term is necessary.  
+( x ) The P-value is larger than 0.05. So, according to our criterion, we would fail to reject, which suggests that the interaction terms may not be necessary.  
+(   ) The P-value is larger than 0.05. So, according to our criterion, we would fail to reject, which suggests that the interaction terms is necessary.  
+(   ) The P-value is small (less than 0.05). Thus it is surely true that there is no interaction term in the true model.  
+( x ) The P-value is small (less than 0.05). Thus it is surely true that there is an interaction term in the true model.  
+(   ) The P-value is small (less than 0.05). So, according to our criterion, we reject, which suggests that the interaction term is not necessary.  
+
+**Answare:**  
+
+```{r, question33, echo=TRUE}
+data("mtcars")
+mtcars$cyl <- as.factor(mtcars$cyl)
+# adjusted
+fit3 <- lm(mpg ~ cyl + wt, data = mtcars)
+fit4 <- lm(mpg ~ cyl + wt + wt*cyl, data = mtcars)
+
+summary(fit3)$adj.r.squared
+summary(fit4)$adj.r.squared
+
+anova(fit3, fit4)$'Pr(>F)'[2]
+
+```
+**Detaills**  
+Video Model Selection - [Model Selection part I](https://d18ky98rnyall9.cloudfront.net/02%2005%20Part%201%20of%203%20Model%20Selection.f4efe3e03d2311e5ac64370b7898bcb1/full/360p/index.mp4?Expires=1590883200&Signature=IXllyZdyJ6k3fx-XSk1uD11iLxohekkLHeIUq3EUXw8YJifVB3NKbmvMYHJg6Q7gnqlVpj9Ow9LlpF0oXb8B8s4Oxm6OSJEswlVYATtS6ctpWnQTbJWTCXgO9pVTk87wfx89SeDpphzohLfWE767zZbo0RaCIkRIzPPd2N-KgZ0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_05.pdf)  
+
+## Q-4  
+
+Consider the **mtcars** data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight inlcuded in the model as  
+$lm(mpg ~ I(wt * 0.5) + factor(cyl), data = mtcars)$  
+How is the wt coefficient interpretted?
+
+(   ) The estimated expected change in MPG per one ton increase in weight.  
+(   ) The estimated expected change in MPG per half ton increase in weight for for a specific number of cylinders (4, 6, 8).  
+(   ) The estimated expected change in MPG per half ton increase in weight for the average number of cylinders.  
+(   ) The estimated expected change in MPG per half ton increase in weight.  
+( x ) The estimated expected change in MPG per one ton increase in weight for a specific number of cylinders (4, 6, 8).  
+
+**Answare:**  
+
+```{r, question34, echo=TRUE}
+data("mtcars")
+lm(mpg ~ I(wt * 0.5) + factor(cyl), data = mtcars)
+```
+**Detaills**  
+To avoid this confusion, the function I() can be used to bracket those portions of a model formula where the operators are used in their arithmetic sense. For example, in the formula y ~ a + I(b+c), the term b+c is to be interpreted as the sum of b and c.  
+
+Video Statistical linear regression models - [Linear Regression for Prediction](https://d3c33hcgiwev3.cloudfront.net/01_05_part%203.8ab2f850efa311e49eca3fc2c0c1a82b/full/360p/index.mp4?Expires=1589673600&Signature=Z5VVntDbMkRPdYPzUv30oGsqP7j3UzvXpaDJObW28pA-t8jazeJ3xePtBWUmdshrn90lyr8PrF1WLZOflAYOkv7B-fe4mvgWt8-h8-s2na-YdsjtUVKiKcKi7sDOYLRVIo2faeyO8sL~SuHeiMccVrfxed4DAvSX81u51v-toLo_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/01_05.pdf)  
+
+## Q-5 
+
+Consider the following data set  
+$x <- c(0.586, 0.166, -0.042, -0.614, 11.72)$  
+$y <- c(0.549, -0.026, -0.127, -0.751, 1.344)$  
+Give the hat diagonal for the most influential point
+
+( x ) 0.9946  
+(   ) 0.2025  
+(   ) 0.2287  
+(   ) 0.2804  
+
+**Answare:**  
+
+```{r, question35, echo=TRUE}
+x <- c(0.586, 0.166, -0.042, -0.614, 11.72)
+y <- c(0.549, -0.026, -0.127, -0.751, 1.344)
+
+fit5 <- lm(y ~ x)
+plot(fit5)#(fit5, which=1)
+max(hatvalues(fit5))
+```
+**Detaills**  
+Outliers may or may not belong in the data. They may represent real events or they may be spurious. In any case, they should be examined. In order to spot them, R provides various diagnostic plots and measures of influence. In this lesson we'll illustrate their meanings and use. The basic technique is to examine the effects of leaving one sample out, as we did in comparing the black and orange lines above.   We'll use the influential outlier to illustrate, since leaving it out has clear effects.
+
+Video Residual Again - [Residuals and Diagnostics part III](https://d18ky98rnyall9.cloudfront.net/02%2004%20v2%20Part%203%20of%203%20Diagnostics.89c8b5103d2311e587320561379c0791/full/360p/index.mp4?Expires=1590883200&Signature=Cmd0SfjmS4vkPenZUfdWn~Y87sbXkHvgWC1BpSMLR2xd1ONAfsDVPATqAG2WqGVl3gdxxh8NE2N~La9emR7j03VtG6IkJ7V1BBV5OmkceG1-AD6474waypsELBolFA~yEJEe-4X~wHS87xpS2wvMNX6xR1eCnkaMziUjNtbqtks_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_04.pdf)  
+
+SWIRL - Regression Models-Residuals Diagnostics and Variation  
+
+## Q-6 
+
+Consider the following data set  
+$x <- c(0.586, 0.166, -0.042, -0.614, 11.72)$  
+$y <- c(0.549, -0.026, -0.127, -0.751, 1.344)$  
+Give the slope dfbeta for the point with the highest hat value.  
+
+(   ) 0.673  
+(   ) -0.378  
+( x ) -134  
+(   ) -.00134  
+
+**Answare:**  
+
+```{r, question36, echo=TRUE}
+x <- c(0.586, 0.166, -0.042, -0.614, 11.72)
+y <- c(0.549, -0.026, -0.127, -0.751, 1.344)
+fit6 <- lm(y ~ x)
+influence.measures(fit6)$infmat[5, 'dfb.x']
+max.pos <- which.max(hatvalues(fit6)) 
+dfbetas(fit6)[max.pos,2] 
+
+```
+**Detaills**  
+Influence Measures  
+Video Residual Again - [Residuals and Diagnostics part II](https://d18ky98rnyall9.cloudfront.net/02%2004%20v2%20Part%202%20of%203%20Diagnostics.216decb03d2311e5ab3671d444fa95f0/full/360p/index.mp4?Expires=1590883200&Signature=GfocO4BligpX15g7rBQSIuDpTiKCc0Fi6QG7seXAWzZHBjxLRfFqHIKJJtabYG4nprf2ut63Rr5joAyzXXmRlukPEPe9bLq9Y1uDOFM2boLM3-4D3hJRCJZe2ONC3tcoCNWQF5xWxKqjXeRgLuWsICJ4PPtSAEr1mv5WATJkkmU_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+- [**PDF material**](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/02_04.pdf) 
+
+## Q-7 
+
+Consider a regression relationship between Y and X with and without adjustment for a third variable Z. Which of the following is true about comparing the regression coefficient between Y and X with and without adjustment for Z.  
+
+(   ) The coefficient can't change sign after adjustment, except for slight numerical pathological cases.  
+(   ) Adjusting for another variable can only attenuate the coefficient toward zero. It can't materially change sign.  
+( x ) It is possible for the coefficient to reverse sign after adjustment. For example, it can be strongly significant and positive before adjustment and strongly significant and negative after adjustment.  
+(   ) For the the coefficient to change sign, there must be a significant interaction term.  
+
+**Answare:**  
+
+```{r, question37, echo=TRUE}
+
+```
+**Detaills**  
+Video Inference in regression - [Coding Example]()  
+- [**PDF material**]()  
+
+
+# Week #4 {.tabset .tabset-fade} 
+Quiz:  
+
+## Overview  
+**Week 4 New Videos**  
+
+* GLMs:  
+Generalized linear models (GLMs) were a great advance in statistical modeling. The original manuscript with the GLM framework was from Nelder and Wedderburn in 1972. in the Journal of the Royal Statistical Society. The McCullagh and Nelder book1 is the famous standard treatise on the subject.  
+Recall linear models. Linear models are the most useful applied statistical technique. However, they are not without their limitations. Additive response models don’t make much sense if the response is discrete, or strictly positive. Additive error models often don’t make sense, for example, if the outcome has to be positive. Transformations, such as taking a cube root of a count outcome, are often hard to interpret.In addition, there’s value in modeling the data on the scale that it was collected. Particularly interpretable transformations, natural logarithms in specific, aren’t applicable for negative or zero values.  
+The generalized linear model is family of models that includes linear models. By extending the family, it handles many of the issues with linear models, but at the expense of some complexity and loss of some of the mathematical tidiness. A GLM involves three components an exponential family model for the response.  
+A systematic component via a linear predictor.  
+A link function that connects the means of the response to the linear predictor.
+The three most famous cases of GLMs are: linear models, binomial and binary regression and Poisson regression. We’ll go through the GLM model specification and likelihood for all three. For linear models, we’ve developed them previously. The next two modules will be devoted to binomial and Poisson regression. We’ll only focus on the most popular and useful link functions.  
+
+* LectureGLMs [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/03_01.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/03%2001%20Part%201%20of%201%20Generalized%20Linear%20Models.edfafa70451b11e5abac075830dc0faa/full/360p/index.mp4?Expires=1591142400&Signature=LZeg0qJnt3q9fIlNon7sEO2dNDZCAz3x4kNoXCxnS7K-TaOh-IxJsrw0mLRnbr1vg4T8FANcQKnX3FcPOGx7hhPLbAYikYxXP0vvoYQ7pgHq2SUQaxQNM-wZbdfma6Ji7w2ucge~1~mN3MKh7AHjqcXiCsO8Ja7rHzZ4QShW1nQ_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Logistic Regression**  
+
+* Logistic regression:  
+Binary GLMs come from trying to model outcomes that can take only two values. Some examples include: survival or not at the end of a study, winning versus losing of a team and success versus failure of a treatment or product. Often these outcomes are called Bernoulli outcomes, from the Bernoulli distribution named after the famous probabilist and mathematician.  
+If we happen to have several exchangeable binary outcomes for the same level of covariate values, then that is binomial data and we can aggregate the 0’s and 1’s into the count of 1’s. As an example, imagine if we sprayed insect pests with 4 different pesticides and counted whether they died or not. Then for each spray, we could summarize the data with the count of dead and total number that were sprayed and treat the data as binomial rather than Bernoulli.  
+
+* LectureLogistic Regression part I [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/03_02.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/03%2002%20Part%201%20of%203%20Logistic%20regression.4ef26f20451c11e58069d7dc3a08bd2b/full/360p/index.mp4?Expires=1591142400&Signature=kr0sGwrVadl4GjH~Puty4gMEIOmxP~420bwKZBWyuQvETdnhyLQvWI3~zZvU6i2MLjxRwpEm3WY7~Te3cm~pRWLeUW-tbKIvR33JC~Zbl8f2RQlRpN0CXLAiv9Mac0rd6r~0IlnbGmYba0wPh8~h3KCQ0Ybax5F3IuLSe-yTfOU_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* LectureLogistic Regression part II [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/03_02.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/03%2002%20Part%202%20of%203%20Logistic%20regression.916822f0451c11e5bc5ea3cb84bf3032/full/360p/index.mp4?Expires=1591142400&Signature=IhK9WOmu~GhrL92gjiktMtWsbsFP3vOINtfGLeLuqxUGyvyRwgz374PSC2x2N~ql~dWTMeglexCCOGFh3-bLeEyjypSC7k4E9nOiN5QW2TG3oTqHtVkgVvE~-1WEImqZtXjly85MuYL6jWtFlYA6AhVB2816Pn53dSY2w3JyZhk_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* LectureLogistic Regression part III [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/03_02.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/03%2002%20Part%203%20of%203%20Logistic%20regression.d45d3ff0451c11e5b745ad909d55b658/full/360p/index.mp4?Expires=1591142400&Signature=EpPiYDlv-bjNxWDJrggThZ7ONYRqB-DxGXb5lTND3tE3d7CF8ST2PNyokegnfxCUWBjQdtTdU5XsnlA0Lye2187hECdAbBtNQdBf0BqkMcBUiKIVxKo99HEgeqUyK4v0hSN7-NuHGcUIFH6dO0c9TW9MIDAScfi1mnUAxn5I3Z4_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Poisson Regression**  
+
+* Count Data:  
+Many data take the form of unbounded count data. For example, consider the number of calls to a call center or the number of flu cases in an area or the number of hits to a web site.  
+In some cases the counts are clearly bounded. However, modeling the counts as unbounded is often done when the upper limit is not known or very large relative to the number of events.  
+If the upper bound is known, the techniques we’re discussing can be used to model the proportion or rate. The starting point for most count analysis is the the Poisson distribution.  
+In the following lectures, we go over some of the basics of modeling count data.  
+
+* LecturePoisson Regression part I [YouTube](https://www.youtube.com/watch?v=YtotMuVmOUM&list=PLpl-gQkQivXjqHAJd2t-J_One_fYE55tC&index=37) [Video](https://d3c33hcgiwev3.cloudfront.net/03%2003%20Poisson%20regression_2C%20part%201%20of%202.35ca80e0451d11e591fffb1843913a62/full/360p/index.mp4?Expires=1591142400&Signature=XEZ9PA44UZEZmPJzIyK0tOUzQjYSn6~rfGYQ8B3g9tiWvHpC8-TytQKf9fdzSSL88OF-xnFvxasAmF2lMaYsCrD-htas5gwA7~LSV5ZKyUXXkBjrRu6m6N1cCVn8XT1FMB1CO-O1c0Zu74sNFLNvDz6UiEJCxNg4ajOvHtHl7BQ_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+* LecturePoisson Regression part II [Video](https://d3c33hcgiwev3.cloudfront.net/03%2003%20Poisson%20regression%20part%202%20of%202.c3327460451d11e585d2678ac3af3825/full/360p/index.mp4?Expires=1591142400&Signature=YCE1c2pym8ik9Gck3cFXmeJrJf6PNDUHS9AKs5fvk7ZW2XUUutlmM2dKgNVlIGojIeHgd1t3XVRyJvx6O~G0mepN5RKmhOrnTtHVmQo-tmSFC-uYQFsxgqd-c2EsCSAkr0UOzDRgc8CKu5JUE-tbTXgY~ojndzUiHvebHcfBlG0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Hodgepodge**  
+
+* Mishmash:   
+This lecture is a bit of an mishmash of interesting things that one can accomplish with linear models.  
+
+* LectureHodgepodge [PDF](https://github.com/bcaffo/courses/raw/master/07_RegressionModels/pdfs/03_04.pdf) [Video](https://d3c33hcgiwev3.cloudfront.net/03%2004%20Hodgepodge.04da29d0451e11e5914cf1f7c6873046/full/360p/index.mp4?Expires=1591142400&Signature=XpXS4GhNOguSGbfw5Ho~t9k-YXdv~zzRCCzVH-0DsC0YaXsUZmsMWwtaGrhNESLQ-BmekVSSkeOBWiFhMUz2HhKA7EdRRlcOiYwh9qbKyxhGogL5NnJ3v8a4WDdkCKBIAQevDhsPv0xXGHkDh6Cp77Y7IdxMEuIv0dEGCOXazCY_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)  
+
+**Practical R Exercises in swirl**  
+During this week of the course you should complete the following lessons in the Regression Models swirl course:
+
+* Programming Assignment: swirl Lesson 1: Variance Inflation Factors  
+* Programming Assignment: swirl Lesson 2: Overfitting and Underfitting  
+* Programming Assignment: swirl Lesson 3: Binary Outcomes  
+* Programming Assignment: swirl Lesson 4: Count Outcomes  
+
+**Course Project**  
+
+* Regression Models Course Project  
+* Review Your Peers: Regression Models Course Project  
+
+## Q-1 
+
+Consider the space shuttle data? **Shuttle** in the **MASS** library. Consider modeling the use of the autolander as the outcome (variable name **use**). Fit a logistic regression model with autolander (variable auto) use (labeled as "auto" 1) versus not (0) as predicted by wind sign (variable wind). Give the estimated odds ratio for autolander use comparing head winds, labeled as "head" in the variable headwind (numerator) to tail winds (denominator).
+
+( x ) 0.969  
+(   ) -0.031  
+(   ) 0.031  
+(   ) 1.327  
+
+**Answare:**  
+
+```{r, question51, echo=TRUE}
+library(MASS)
+head(shuttle)
+?shuttle
+#"auto" = 1 versus not = 0
+shuttle$use_binary <- as.integer(shuttle$use == "auto")
+#logistic regression model
+fit <- glm(use_binary ~ wind - 1, data = shuttle, family = binomial)
+summary(fit)$coef
+#Estimated Odds ratio
+exp(coef(fit))[1]/exp(coef(fit))[2] 
+```
+## Q-2 
+
+Consider the previous problem. Give the estimated odds ratio for autolander use comparing head winds (numerator) to tail winds (denominator) adjusting for wind strength from the variable magn.
+
+(   ) 0.684  
+( x ) 0.969  
+(   ) 1.00  
+(   ) 1.485  
+
+**Answare:**  
+
+```{r, question52, echo=TRUE}
+#"auto" = 1 versus not = 0
+shuttle$use_binary <- as.integer(shuttle$use == "auto")
+#logistic regression model
+fit2 <- glm(use_binary ~ wind+magn - 1, data = shuttle, family = binomial)
+summary(fit2)$coef
+exp(coef(fit2))
+x <- exp(cbind(OddsRatio=coef(fit2),confint(fit2)))
+x
+#Estimated Odds ratio
+x[1,'OddsRatio']/x[2,'OddsRatio']
+```
+
+## Q-3 
+
+If you fit a logistic regression model to a binary variable, for example use of the autolander, then fit a logistic regression model for one minus the outcome (not using the autolander) what happens to the coefficients?
+
+(   ) The intercept changes sign, but the other coefficients don't.  
+( x ) The coefficients reverse their signs.  
+(   ) The coefficients get inverted (one over their previous value).  
+(   ) The coefficients change in a non-linear fashion.  
+
+**Answare:**  
+
+```{r, question53, echo=TRUE}
+library(MASS)
+shuttle$use_binary<- as.integer(shuttle$use=="auto")
+
+fit3<- glm(use_binary~wind-1,data=shuttle,family=binomial)
+summary(fit3)$coef
+#one minus the outcome
+fit4<- glm(1-use_binary~wind-1,data=shuttle,family=binomial)
+summary(fit4)$coef
+```
+
+## Q-4 
+
+Consider the insect spray data **InsectSprays**. Fit a Poisson model using spray as a factor level. Report the estimated relative rate comapring spray A (numerator) to spray B (denominator).
+
+(   ) -0.056  
+(   ) 0.321  
+( x ) 0.9457  
+(   ) 0.136  
+
+**Answare:**  
+
+```{r, question54, echo=TRUE}
+head(InsectSprays)
+fit5<- glm(count~factor(spray)-1,family="poisson",data=InsectSprays)
+summary(fit5)$coef
+x <- exp(coef(fit5))
+x
+x['factor(spray)A']/x['factor(spray)B']
+```
+
+## Q-5 
+
+Consider a Poisson glm with an offset, **t**. So, for example, a model of the form **glm(count ~ x + offset(t), family = poisson)** where **x** is a factor variable comparing a treatment (1) to a control (0) and **t** is the natural log of a monitoring time. What is impact of the coefficient for **x** if we fit the model **glm(count ~ x + offset(t2), family = poisson)** where **2 <- log(10) + t**? In other words, what happens to the coefficients if we change the units of the offset variable. (Note, adding log(10) on the log scale is multiplying by 10 on the original scale.)
+
+(   ) The coefficient estimate is multiplied by 10.  
+(   ) The coefficient is subtracted by log(10).  
+(   ) The coefficient estimate is divided by 10.  
+( x ) The coefficient estimate is unchanged.  
+
+**Answare:**  
+
+```{r, question55, echo=TRUE}
+set.seed(100125)
+t<- rnorm(72)
+t1<- log(10)+t
+fit6<- glm(count~factor(spray)+offset(t),family="poisson",data=InsectSprays)
+fit7<- glm(count~factor(spray)+offset(t1),family="poisson",data=InsectSprays)
+summary(fit6)$coef[,1]
+summary(fit7)$coef[,1]
+log(10)
+log(10) - summary(fit6)$coef[1,1]
+```
+
+## Q-6 
+
+Consider the data
+**x <- -5:5**
+**y <- c(5.12, 3.93, 2.67, 1.87, 0.52, 0.08, 0.93, 2.05, 2.54, 3.87, 4.97)**  
+
+Using a knot point at 0, fit a linear model that looks like a hockey stick with two lines meeting at x=0. Include an intercept term, x and the knot point term. What is the estimated slope of the line after 0?
+
+( x ) 1.013  
+(   ) -0.183  
+(   ) 2.037  
+(   ) -1.024  
+
+**Answare:**  
+
+```{r, question56, echo=TRUE}
+x <- -5:5
+y <- c(5.12, 3.93, 2.67, 1.87, 0.52, 0.08, 0.93, 2.05, 2.54, 3.87, 4.97)
+
+knots<-c(0)
+?knots
+splineTerms<-sapply(knots,function(knot) (x>knot)*(x-knot))
+xmat<-cbind(1,x,splineTerms)
+fit8<-lm(y~xmat-1)
+yhat<-predict(fit8)
+summary(fit8)$coef
+(yhat[10]-yhat[6])/4
+
+plot(x,y)
+lines(x,yhat,col="red")
+```

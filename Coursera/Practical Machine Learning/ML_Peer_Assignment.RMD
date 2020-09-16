@@ -1,0 +1,215 @@
+---
+title: "Machine Learnig Peer-Assignment"
+author: "Cristian Neuhaus"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview  
+
+Using devices such as ***Jawbone Up***, ***Nike FuelBand***, and ***Fitbit*** it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify **how much** of a particular activity they do, but they rarely quantify ***how well*** they do it.  
+This report shows an analysis using **Machine Learning**  over data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants. That were asked to perform barbell lifts correctly and incorrectly in 5 different ways. 
+The goal of this project is to predict the manner in which they did the exercise, results into ***classe*** variable. Answering the question:  
+-- Can I use quantitative data from accelerometers that allow me to classify it as correctly or incorrectly manner that they did the exercise?  
+
+To do that, We are going  to test two models, ***decision tree*** and ***random forest***. And choose the model with the highest accuracy.  
+This project is a part of Coursera Practical Machine Learning Week 4 - Peer-graded Assignment: Prediction Assignment Writeup.  
+
+
+```{r warning=FALSE, include=FALSE}
+if(!require(AppliedPredictiveModeling))install.packages("AppliedPredictiveModeling")
+if(!require(caret))install.packages("caret")
+if(!require(pgmm))install.packages("pgmm")
+if(!require(rpart))install.packages("rpart")
+if(!require(tidyverse))install.packages("tidyverse")
+if(!require(randomForest))install.packages("randomForest")
+if(!require(rpart.plot))install.packages("rpart.plot")
+if(!require(corrplot))install.packages("corrplot")
+if(!require(rattle))install.packages("rattle")
+```
+Libraries used:  
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(AppliedPredictiveModeling)
+library(caret)
+library(pgmm)
+library(rpart)
+library(tidyverse)
+library(rpart.plot)
+library(randomForest)
+library(corrplot)
+library(rattle)
+```
+# Getting and Cleaning Data  
+
+The data for this project come from  http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset), that was very generous in allowing their data to be used for this kind of assignment.  
+
+A link for training data:  
+ - https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv  
+
+A link for test data:  
+ - https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv  
+
+Below the code used to download it.  
+```{r echo=TRUE, include=TRUE}
+# The training data for this project
+training <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", sep = ',', header=TRUE)
+# The test data
+testing <- read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", sep = ',', header=TRUE)
+# Assuring that column names are lowercase - Good practice
+names(training) <- tolower(names(training))
+names(testing) <- tolower(names(testing))
+```
+
+## Overview about Data  
+
+```{r echo=TRUE, include=FALSE}
+# Looking the dimensions of both data file
+dim(training)
+dim(testing)
+#write.csv(training, "./training.csv")
+```
+Into the original data we found **`r dim(training)[2]`** variables. For *training* data set we have **`r dim(training)[1]`** measurements and for *testing* data set we have **`r dim(testing)[1]`** measurements.  
+
+For the ***classe*** variable, that is the result we want to predict, this is distributed  in 5 options, according to the rate showed bellow.  
+
+```{r}
+table(training$classe)/nrow(training)
+```
+```{r echo=TRUE, include=FALSE}
+# summary(training)
+```
+## Cleaning Data  
+
+```{r include=FALSE}
+paste(format(mean(is.na(training)) *100, digits = 2, nsmall = 2),"%")
+```
+Taking a look into all `r dim(training)[2]` variables. We have `r format(mean(is.na(training)) *100, digits = 2, nsmall = 2)`% of data as *NAs*. The plan is to remove part of it, remove near zero variance predictors and the first column *"X"* that is the primary key for the data. For near zero variance we use the nearZeroVar function.  
+In addition, coerce the data into the same type in order to avoid errors when calling random forest model, due to different variables levels.  
+
+```{r echo=TRUE, include=TRUE}
+# Finding variables with more than 50% NAs values
+col_NA  <-  !as.logical(apply(training, 2, function(x){ mean(is.na(x)) >= 0.5}))
+# Finding near zero variance columns
+col_nzv  <-  nearZeroVar(x = training, saveMetrics = T)
+# Combining columns with near zero variance and >= 50% of NAs
+col_index  <-  col_NA*1 + (!col_nzv$nzv)*1
+col_index  <-  col_index == 2
+# Now we know what columns we need to remove. 
+# Remove the same columns for both, training and testing dataset.
+training  <-  training[,col_index]
+testing  <-  testing[,col_index]
+# Also remove the first columnm "x"
+training  <-  training[, -1]
+testing <- testing[, -1]
+# To get the same class between testing and training.set
+testing = testing[,-ncol(testing)]
+testing <- rbind(training[2, -ncol(training)] , testing) # Combine both table Columns
+testing <- testing[-1,] # Removing first row, that comes from training table
+rownames(testing) <- 1:nrow(testing) # Adjust the rownames
+```
+Now we have **`r dim(training)[2]`** variables for ***training*** data set and **`r dim(testing)[2]`** for ***testing*** data set.  
+
+```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+# Check Data Correlation
+fit <- coef(lm(classe~., data = training [,6:58]))
+corr_col <- cor(training [,6:57])
+diag(corr_col) <- 0
+corr_col <- which(abs(corr_col)>0.9,arr.ind = T)
+corr_col <- unique(row.names(corr_col))
+
+corrplot(cor(select(training,corr_col)),
+         type="upper", order="hclust",method = "number")
+```
+
+# Model description  
+
+This section describes how we built the model, how we used cross validation, what we think the expected out of sample error is, and why we made the choices we did. We will also use your prediction model to predict 20 different test cases.
+
+## Cross-validation
+
+Prediction Study design - Spliting data - will be done by spliting training data into two data sets. Using the typical sizes, 60% in the training set and 40% in the testing set. As recommended by [*Prediction study design*](https://www.coursera.org/specialization/jhudatascience/1) (page 7) from Coursera course Practical Machine Learning.  
+
+The model will be fitted into ***training.set*** variable, and tested by ***testing.set*** data set.  
+Finally, to verify what will be the most accurate model, **Decision Tree** or **Random Forest** to use it to test on the original Testing data set.  
+
+```{r echo=TRUE, include=TRUE}
+#for reproduceability
+set.seed(10000)
+# Index for training dataset (60%) and testing dataset (40%)
+testIndex <- createDataPartition(training$classe, p = 0.60,list=FALSE)
+#spliting
+training.set <- training[testIndex,] 
+testing.set <- training[-testIndex,]
+```
+
+Training and test sets amount of observations assigned to each one: 
+
+```{r include=TRUE}
+dim(training.set)
+dim(testing.set)
+```
+## Expected out of sample error
+
+Sample error is the rate we get on the same data set that we used to build our predictor (*resubstitution error*). So **Out of Sample Error** is the error rate that we get on a new data set (*generalization error*).  
+The expected out of sample error is something close to **1-accuracy**.  
+
+## Prediction model 
+
+We used two approaches to create and test out prediction model, that are a basic description bellow from *Coursera Practical Machine Learning Week 3*: 
+
+### Model 1: Predicting with Trees  
+
+For this prediction model we used the ***rpart*** method and the ***caret*** package. The basic idea is that if we have a bunch of variables that we want to use to predict an outcome, we can take each of those variables, and use it to split the outcome into different groups. And, so as we split the outcomes into different groups, then we can evaluate the homogeneity of the outcome within each group. And continue to split again if necessary, and then, until we get outcomes that are separated into groups that are homogeneous enough, or that they are small enough that we need to stop.
+
+```{r}
+modFit <- train(classe ~ ., data=training.set, method="rpart")
+print(modFit$finalModel)
+```
+
+Plotting it for easy understanding  
+
+```{r, fig.height=10,fig.width=21}
+fancyRpartPlot(modFit$finalModel, main="Classification Tree")
+```
+
+```{r}
+# predicting new values
+prediction1 <- predict(modFit, newdata = testing.set)
+# Test results on our testing.set data set:
+conf1 <- confusionMatrix(prediction1, testing.set$classe)
+conf1
+```
+
+### Model 2: Random Forest
+
+Second prediction model using random forest. Where the basic idea is that we build a large number of trees where each tree is based on a bootstrap sample. So we take a resample of our observed data, and our training data set. And then we rebuild classification or regression trees on each of those bootstrap samples.  
+
+```{r}
+modFit2 <- randomForest(classe ~ . , data = training.set, method = "class")
+# Predicting:
+prediction2 <- predict(modFit2, testing.set, type = "class")
+# Test results on TestTrainingSet data set:
+conf2 <- confusionMatrix(prediction2, testing.set$classe)
+conf2
+```
+# Results  
+
+Random Forest model showed a better accuracy than Predicting/Decision Trees.  
+Details about both:  
+- Decision Tree model - Accuracy = **`r conf1$overall[1]`**, expected out-of-sample error = **`r format((1 - conf1$overall[1])*100, digits = 2, nsmall = 2)`%**.  
+- Random Forest model - Accuracy = **`r conf2$overall[1]`**, expected out-of-sample error = **`r format((1 - conf2$overall[1])*100, digits = 2, nsmall = 2)`%**.   
+
+## Submission  
+
+Then, **Random Forest** model is our choice for predicting the **`r dim(testing)[1]`** observations from the original **testing** data set.  
+Bellow are the outcome for the  **`r dim(testing)[1]`**  measurements to predict the **classe** variable.  
+```{r}
+# predict outcome levels on the original Testing data set using Random Forest algorithm
+predictfinal <- predict(modFit2, testing, type = "class")
+predictfinal
+```
+
