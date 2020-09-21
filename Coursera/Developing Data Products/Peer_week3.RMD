@@ -1,0 +1,37 @@
+---
+title: "R Markdown Presentation & Plotly"
+author: "Cristian Neuhaus"
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+```{r}
+if(!require(plotly))install.packages("plotly")
+library(plotly)
+#library(tidyr)
+#library(dplyr)
+```
+
+## Instructions
+
+This web page presentation using R Markdown that features a plot created with Plotly.  
+Plotly is a web application for creating and sharing data visualizations. Plotly can work  with several  programming languages and applications including R, Python, and Microsoft Excel.  
+
+More details at https://plot.ly/
+
+
+## Miles/(US) gallon x Weight (1000 lbs)
+
+```{r cars, echo=FALSE, message=FALSE, warning=FALSE}
+data("mtcars")
+plot_ly(mtcars, x = ~wt, y = ~mpg, type = "scatter", color = ~factor(cyl)) 
+
+```
+Color by Number of cylinders  
+
+## Thank You
+
+
