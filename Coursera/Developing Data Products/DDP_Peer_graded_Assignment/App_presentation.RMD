@@ -31,7 +31,7 @@ Course Project of Developing Data Products, that has two parts:
 include_graphics("Snap0.png")
 ```
 
-This appllication contain 3 tabs:
+This application contain 3 tabs:
 
 - Charts
 - Data Set details

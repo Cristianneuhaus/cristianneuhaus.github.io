@@ -27,7 +27,6 @@ shinyServer(function(input, output) {
       print(p)
    })
    output$table1 <- DT::renderDataTable({
-      #DT::datatable(diamonds2[, input$show_vars, drop = FALSE])
       if(input$source_select2 == "mtcars"){
          #x <- DT::datatable(mtcars, options = list(orderClasses = TRUE))
          x <- data.frame(mtcars)
