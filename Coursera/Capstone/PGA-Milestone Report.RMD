@@ -247,7 +247,7 @@ rm(tdm, freq, wordFreq)
 
 As mentioned earlier, the next steps will be to produce a Shiny app in a way that will predict the next word using **natural language processing**.  
 This first step provided an overview over the data and confirmed the needed to work with a sample size of data due to the large data available.  
-The complete code are available into [github.com/Cristianneuhaus](https://github.com/Cristianneuhaus/cristianneuhaus.github.io/tree/master/Coursera/Capstone)  
+The complete code are available into [github.com/Cristianneuhaus](https://github.com/Cristianneuhaus/cristianneuhaus.github.io/edit/master/Coursera/Capstone/PGA-Milestone%20Report.RMD)  
 
 
 ```{r message = FALSE, echo = FALSE}
