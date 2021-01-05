@@ -1,0 +1,410 @@
+---
+title: 'Data Science Capstone - Week 2 - Milestone Report'
+author: "Crisitan Neuhaus"
+date: "20/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+if(!require(AppliedPredictiveModeling))install.packages("AppliedPredictiveModeling")
+if(!require(caret))install.packages("caret")
+if(!require(pgmm))install.packages("pgmm")
+if(!require(rpart))install.packages("rpart")
+if(!require(tidyverse))install.packages("tidyverse")
+if(!require(randomForest))install.packages("randomForest")
+if(!require(rpart.plot))install.packages("rpart.plot")
+if(!require(corrplot))install.packages("corrplot")
+if(!require(rattle))install.packages("rattle")
+if(!require(tm))install.packages("tm")
+if(!require(downloader))install.packages("downloader")
+if(!require(stringi))install.packages("stringi")
+if(!require(wordcloud))install.packages("wordcloud")
+if(!require(RColorBrewer))install.packages("RColorBrewer")
+```
+Libraries used:  
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(AppliedPredictiveModeling)
+library(caret)
+library(pgmm)
+library(rpart)
+library(tidyverse)
+library(rpart.plot)
+library(randomForest)
+library(corrplot)
+library(rattle)
+library(tm)
+library(downloader)
+library(stringi)
+library(wordcloud)
+library(RColorBrewer)
+```
+
+## Peer-graded Assignment Overview
+
+**Instructions**  
+The goal of this project is to provide an exploratory text data analysis on the data that we are on track to create a prediction algorithm. This document shows and explain only the major features of the data and a briefly summary.  
+The main plan is to provide an understandable view of data to create, in the next steps, a Shiny app in a way that it predict the next word using **natural language processing**. This summary contains tables and plots to illustrate the data set. 
+
+**Dataset**  
+This dataset is fairly large and is from [Capstone data Set](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip), Coursera Data Science Capstone class and contain English, German, Russian and Finnish database. But we will focus on English database.  
+Each database contains three files with text corpus of documents to be used as training data:  
+ - *en_US.blogs.txt*  
+ - *en_US.news.txt*  
+ - *en_US.twiter.txt*  
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Junk to download file and unzip it
+Url <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+if (!file.exists('final')) {
+    dir.create('final')
+}
+if (!file.exists("final/en_US")) {
+    if (Sys.info()[['sysname']] == 'Windows'){
+      download.file(Url,destfile="Coursera-SwiftKey.zip") # for window
+      unzip ("Coursera-SwiftKey.zip")
+    }
+    if (Sys.info()[['sysname']] == 'Darwin'){
+      download.file(Url,destfile="Coursera-SwiftKey.zip",method="curl") # for mac
+      unzip ("Coursera-SwiftKey.zip", exdir = "./")
+    }
+    
+}
+```
+## Exploratory data analysis  
+
+## Size of files  
+To build our model, we don't need to load in and use all of the data due to the large of data.  
+
+```{r echo=TRUE, warning=FALSE}
+if(FALSE){ # it takes a long time processing
+files_data <- c("./final/en_US/en_US.twitter.txt",
+                   "./final/en_US/en_US.blogs.txt",
+                   "./final/en_US/en_US.news.txt")
+total_ln <- c();file_size <- c();total_word <- c()
+for(i in 1:length(files_data)){
+  file_size[i] <- as.integer(file.size(paste(files_data[i],sep = '"'))/1024/1024) # Megabyte
+  con <- file(paste(files_data[i],sep = '"'), "r")  # Open connection
+  temp <- readLines(con) # read lines to temp
+  close(con)
+  total_ln[i] <- as.integer(length(temp)) # Total lines
+  total_word[i] <- sum(sapply(strsplit(temp, " "), length)) # Total Words
+}
+print(data.frame(
+                  file = files_data,
+                  total_lines = total_ln,
+                  total_words = total_word,
+                  size_mb = file_size))
+}
+```
+
+```{r message=FALSE}
+# Files path and names
+files_data <- c("./final/en_US/en_US.twitter.txt",
+                   "./final/en_US/en_US.blogs.txt",
+                   "./final/en_US/en_US.news.txt")
+
+# Read all three data sets
+twitter<-readLines(files_data[1],warn=FALSE,encoding="UTF-8")
+blogs<-readLines(files_data[2],warn=FALSE,encoding="UTF-8")
+news<-readLines(files_data[3],warn=FALSE,encoding="UTF-8")
+
+# Get files details
+files_data_info <- data.frame(
+  file = files_data, 
+  size_mb = round(file.info(files_data)$size/(1024^2), digits = 2))
+
+# Add new 3 columns
+files_data_info$total_lines <- 0
+files_data_info$total_words <- 0
+files_data_info$total_char <- 0
+
+# Get #rows
+files_data_info[1,]$total_lines <- length(twitter)
+files_data_info[2,]$total_lines <- length(blogs)
+files_data_info[3,]$total_lines <- length(news)
+
+# Get #characters
+files_data_info[1,]$total_char <- sum(nchar(twitter))
+files_data_info[2,]$total_char <- sum(nchar(blogs))
+files_data_info[3,]$total_char <- sum(nchar(news))
+
+# Get #words
+files_data_info[1,]$total_words <- stri_stats_latex(twitter)[4]
+files_data_info[2,]$total_words <- stri_stats_latex(blogs)[4]
+files_data_info[3,]$total_words <- stri_stats_latex(news)[4]
+
+files_data_info
+```
+
+
+## Sampling  
+
+The plan will get a representative sample of data by reading in a random subset of the original data.  
+
+```{r message=FALSE}
+# set seed for reproducibility
+set.seed(3433)
+
+# Sampling the data to 0.01 - for better performance
+twitter <- sample(twitter, length(twitter) * 0.01, replace = FALSE)
+blogs <- sample(blogs, length(blogs) * 0.01, replace = FALSE)
+news <- sample(news, length(news) * 0.01, replace = FALSE)
+
+# combine all three data sets into a single data set
+inTrain <- c(twitter, blogs, news)
+
+# remove data not needed
+rm(twitter, blogs, news)
+```
+Combined data from twitter, blogs and news files considering 1% as sample size  
+
+```{r}
+message(sprintf("%s lines into the final dataSet\n%s words into the final dataSet", length(inTrain), stri_stats_latex(inTrain)[4]))
+```
+
+## Cleanning Data / Text Normalization  
+
+The cleaning consists to transform the following topics:
+
+* *Remove non-English characters*
+* *Convert all words to lowercase*
+* *Removing punctuation, number, special characters, white-spaces, etc.*
+* *Removing stop words*
+* *Stemming the text*
+* *Remove URLs*
+
+Many of these steps are performed using  [***tm***](https://cran.r-project.org/web/packages/tm/index.html) package that provides a comprehensive text mining framework for R. Also the [Lecture Slides from the 2012 Stanford Coursera course](https://web.stanford.edu/~jurafsky/NLPCourseraSlides.html) provide a good references to start.
+
+The *tm* package uses the concept of a so-called source to encapsulate and abstract the document input process. In this way a corpus is created from the text already sampled, using the *tm* pacakge, in order to take advantage of the text mining functionalities provided by that package.
+
+```{r message=FALSE}
+buildCorpus <- function (dataSet) {
+    dataSet <- iconv(dataSet, "latin1", "ASCII", sub = "") # remove non-English words
+    docs <- VCorpus(VectorSource(dataSet))
+    toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+    # remove URL, Twitter handles and email patterns
+    docs <- tm_map(docs, toSpace, "(f|ht)tp(s?)://(.*)[.][a-z]+")
+    docs <- tm_map(docs, toSpace, "@[^\\s]+")
+    docs <- tm_map(docs, toSpace, "\\b[A-Z a-z 0-9._ - ]*[@](.*?)[.]{1,3} \\b")
+    docs <- tm_map(docs, tolower)
+    docs <- tm_map(docs, removeWords, stopwords("english"))
+    docs <- tm_map(docs, removePunctuation)
+    docs <- tm_map(docs, removeNumbers)
+    docs <- tm_map(docs, stripWhitespace)
+    docs <- tm_map(docs, PlainTextDocument)
+    return(docs)
+}
+corpus <- buildCorpus(inTrain)
+rm(inTrain)
+```
+
+## Exploratory Data Analysis
+
+Exploratory data is to provide to you a basic summary about the data set. Word counts, line counts, a basic data table and a basic plots to show you some features of the data.
+
+### Word Frequencies
+
+A bar chart and word cloud are showed to illustrate most common word that appears into the file.  
+
+```{r message = FALSE, echo = FALSE}
+tdm <- TermDocumentMatrix(corpus)
+freq <- sort(rowSums(as.matrix(tdm)), decreasing = TRUE)
+wordFreq <- data.frame(word = names(freq), freq = freq)
+
+# plot the top 100 most frequent words
+wordFreq %>% 
+  arrange(desc(freq)) %>%
+  top_n(100, freq) %>% 
+  mutate(
+      word = fct_reorder(word, freq, .desc = TRUE)
+  ) %>% 
+  plot_ly(x = ~word, y = ~freq, type = "bar") %>% 
+  layout(title = 'Top 100 most frequent words')
+
+# construct word cloud using library(wordcloud)
+suppressWarnings (
+    wordcloud(words = wordFreq$word,
+              freq = wordFreq$freq,
+              min.freq = 1,
+              max.words = 100,
+              random.order = FALSE,
+              rot.per = 0.35, 
+              colors=brewer.pal(8, "Dark2"))
+)
+
+# remove variables no longer needed to free up memory
+rm(tdm, freq, wordFreq)
+```
+
+### Tokenizing and N-Gram Generation
+
+The predictive model I plan to develop for the Shiny application will handle 
+uniqrams, bigrams, and trigrams. In this section, I will use the `RWeka` package
+to construct functions that tokenize the sample data and construct matrices of
+uniqrams, bigrams, and trigrams.
+
+```{r exploratory-data-analysis-tokenize, message = FALSE, echo = FALSE}
+library(RWeka)
+
+unigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 1, max = 1))
+bigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+trigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+```
+
+#### Unigrams
+
+```{r exploratory-data-analysis-tokenize-unigrams, message = FALSE, echo = FALSE}
+# create term document matrix for the corpus
+unigramMatrix <- TermDocumentMatrix(corpus, control = list(tokenize = unigramTokenizer))
+
+# eliminate sparse terms for each n-gram and get frequencies of most common n-grams
+unigramMatrixFreq <- sort(rowSums(as.matrix(removeSparseTerms(unigramMatrix, 0.99))), decreasing = TRUE)
+unigramMatrixFreq <- data.frame(word = names(unigramMatrixFreq), freq = unigramMatrixFreq)
+
+# generate plot
+g <- ggplot(unigramMatrixFreq[1:20,], aes(x = reorder(word, -freq), y = freq))
+g <- g + geom_bar(stat = "identity", fill = I("grey50"))
+g <- g + geom_text(aes(label = freq ), vjust = -0.20, size = 3)
+g <- g + xlab("")
+g <- g + ylab("Frequency")
+g <- g + theme(plot.title = element_text(size = 14, hjust = 0.5, vjust = 0.5),
+               axis.text.x = element_text(hjust = 1.0, angle = 45),
+               axis.text.y = element_text(hjust = 0.5, vjust = 0.5))
+g <- g + ggtitle("20 Most Common Unigrams")
+print(g)
+```
+
+#### Bigrams
+
+```{r exploratory-data-analysis-tokenize-bigrams, message = FALSE, echo = FALSE}
+# create term document matrix for the corpus
+bigramMatrix <- TermDocumentMatrix(corpus, control = list(tokenize = bigramTokenizer))
+
+# eliminate sparse terms for each n-gram and get frequencies of most common n-grams
+bigramMatrixFreq <- sort(rowSums(as.matrix(removeSparseTerms(bigramMatrix, 0.999))), decreasing = TRUE)
+bigramMatrixFreq <- data.frame(word = names(bigramMatrixFreq), freq = bigramMatrixFreq)
+
+# generate plot
+g <- ggplot(bigramMatrixFreq[1:20,], aes(x = reorder(word, -freq), y = freq))
+g <- g + geom_bar(stat = "identity", fill = I("grey50"))
+g <- g + geom_text(aes(label = freq ), vjust = -0.20, size = 3)
+g <- g + xlab("")
+g <- g + ylab("Frequency")
+g <- g + theme(plot.title = element_text(size = 14, hjust = 0.5, vjust = 0.5),
+               axis.text.x = element_text(hjust = 1.0, angle = 45),
+               axis.text.y = element_text(hjust = 0.5, vjust = 0.5))
+g <- g + ggtitle("20 Most Common Bigrams")
+print(g)
+```
+
+#### Trigrams
+
+```{r exploratory-data-analysis-tokenize-trigrams, message = FALSE, echo = FALSE}
+# create term document matrix for the corpus
+trigramMatrix <- TermDocumentMatrix(corpus, control = list(tokenize = trigramTokenizer))
+
+# eliminate sparse terms for each n-gram and get frequencies of most common n-grams
+trigramMatrixFreq <- sort(rowSums(as.matrix(removeSparseTerms(trigramMatrix, 0.9999))), decreasing = TRUE)
+trigramMatrixFreq <- data.frame(word = names(trigramMatrixFreq), freq = trigramMatrixFreq)
+
+# generate plot
+g <- ggplot(trigramMatrixFreq[1:20,], aes(x = reorder(word, -freq), y = freq))
+g <- g + geom_bar(stat = "identity", fill = I("grey50"))
+g <- g + geom_text(aes(label = freq ), vjust = -0.20, size = 3)
+g <- g + xlab("")
+g <- g + ylab("Frequency")
+g <- g + theme(plot.title = element_text(size = 14, hjust = 0.5, vjust = 0.5),
+               axis.text.x = element_text(hjust = 1.0, angle = 45),
+               axis.text.y = element_text(hjust = 0.5, vjust = 0.5))
+g <- g + ggtitle("20 Most Common Trigrams")
+print(g)
+```
+
+> The source code for this section is attached as [A.6 Tokenizing and N-Gram Generation](#a.6-tokenizing-and-n-gram-generation) in the Appendix section.
+
+## Way Forward
+
+The final deliverable in the capstone project is to build a predictive algorithm
+that will be deployed as a Shiny app for the user interface. The Shiny app
+should take as input a phrase (multiple words) in a text box input and output a
+prediction of the next word.
+
+The predictive algorithm will be developed using an n-gram model with a
+word frequency lookup similar to that performed in the exploratory data analysis
+section of this report. A strategy will be built based on the knowledge 
+gathered during the exploratory analysis. For example, as n increased for
+each n-gram, the frequency decreased for each of its terms. So one possible
+strategy may be to construct the model to first look for the unigram that would
+follow from the entered text. Once a full term is entered followed by a space,
+find the most common bigram model and so on.
+
+Another possible strategy may be to predict the next word using the trigram
+model. If no matching trigram can be found, then the algorithm would check the
+bigram model. If still not found, use the unigram model.
+
+The final strategy will be based on the one that increases efficiency and
+provides the best accuracy.
+
+## Appendix
+
+### A.1 Basic Data Summary
+
+Basic summary of the three text corpora.
+
+```{r initial-data-summary-table-appendix, ref.label = 'initial-data-summary-table', echo = TRUE, eval = FALSE}
+```
+
+### A.2 Histogram of Words per Line
+
+Histogram of words per line for the three text corpora.
+
+```{r initial-data-summary-plot-appendix, ref.label = 'initial-data-summary-plot', echo = TRUE, eval = FALSE}
+```
+
+### A.3 Sample and Clean the Data
+
+```{r prepare-the-data-sample-and-clean-appendix, ref.label = 'prepare-the-data-sample-and-clean', echo = TRUE, eval = FALSE}
+```
+
+### A.4 Build Corpus
+
+```{r prepare-the-data-build-corpus-appendix, ref.label = 'prepare-the-data-build-corpus', echo = TRUE, eval = FALSE}
+```
+
+### A.5 Word Frequencies
+
+```{r exploratory-data-analysis-word-frequencies-appendix, ref.label = 'exploratory-data-analysis-word-frequencies', echo = TRUE, eval = FALSE}
+```
+
+### A.6 Tokenizing and N-Gram Generation
+
+**Tokenize Functions**
+
+```{r exploratory-data-analysis-tokenize-appendix, ref.label = 'exploratory-data-analysis-tokenize', echo = TRUE, eval = FALSE}
+```
+
+**Unigrams**
+
+```{r exploratory-data-analysis-tokenize-unigrams-appendix, ref.label = 'exploratory-data-analysis-tokenize-unigrams', echo = TRUE, eval = FALSE}
+```
+
+**Bigrams**
+
+```{r exploratory-data-analysis-tokenize-bigrams-appendix, ref.label = 'exploratory-data-analysis-tokenize-bigrams', echo = TRUE, eval = FALSE}
+```
+
+**Trigrams**
+
+```{r exploratory-data-analysis-tokenize-trigrams-appendix, ref.label = 'exploratory-data-analysis-tokenize-trigrams', echo = TRUE, eval = FALSE}
+```
+
+**Review criteria**  
+This Peer Assignment contains some requirements:  
+ - Does the link lead to an HTML page describing the exploratory analysis of the training data set?  
+ - Has the data scientist done basic summaries of the three files? Word counts, line counts and basic data tables?  
+ - Has the data scientist made basic plots, such as histograms to illustrate features of the data?  
+ - Was the report written in a brief, concise style, in a way that a non-data scientist manager could appreciate? 

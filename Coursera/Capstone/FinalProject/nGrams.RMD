@@ -1,0 +1,180 @@
+---
+title: 'Data Science Capstone - Week 7 - data for Shiny App'
+author: "Crisitan Neuhaus"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+if(!require(AppliedPredictiveModeling))install.packages("AppliedPredictiveModeling")
+if(!require(caret))install.packages("caret")
+if(!require(pgmm))install.packages("pgmm")
+if(!require(rpart))install.packages("rpart")
+if(!require(tidyverse))install.packages("tidyverse")
+if(!require(randomForest))install.packages("randomForest")
+if(!require(rpart.plot))install.packages("rpart.plot")
+if(!require(corrplot))install.packages("corrplot")
+if(!require(rattle))install.packages("rattle")
+if(!require(tm))install.packages("tm")
+if(!require(downloader))install.packages("downloader")
+if(!require(stringi))install.packages("stringi")
+if(!require(wordcloud))install.packages("wordcloud")
+if(!require(plotly))install.packages("plotly")
+if(!require(RWeka))install.packages("RWeka")
+```
+Libraries used:  
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(AppliedPredictiveModeling)
+library(caret)
+library(pgmm)
+library(rpart)
+library(tidyverse)
+library(rpart.plot)
+library(randomForest)
+library(corrplot)
+library(rattle)
+library(tm)
+library(downloader)
+library(stringi)
+library(wordcloud)
+library(plotly)
+library(RWeka)
+```
+## Capstone : Natural language processing  
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Junk to download file and unzip it
+Url <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+if (!file.exists('final')) {
+    dir.create('final')
+}
+if (!file.exists("final/en_US")) {
+    if (Sys.info()[['sysname']] == 'Windows'){
+      download.file(Url,destfile="Coursera-SwiftKey.zip") # for window
+      unzip ("Coursera-SwiftKey.zip")
+    }
+    if (Sys.info()[['sysname']] == 'Darwin'){
+      download.file(Url,destfile="Coursera-SwiftKey.zip",method="curl") # for mac
+      unzip ("Coursera-SwiftKey.zip", exdir = "./")
+    }
+}
+```
+
+```{r message=FALSE}
+#list.files("final/en_US")
+files_data <- c("./final/en_US/en_US.twitter.txt",
+                   "./final/en_US/en_US.blogs.txt",
+                   "./final/en_US/en_US.news.txt")
+```
+
+```{r message=FALSE}
+# Read all three data sets
+# If you are using Windows, you need might need to specify the encoding of the file by adding encoding = "utf-8". In this case, imported texts might appear like <U+4E16><U+754C><U+4EBA><U+6743> but they indicate that Unicode charactes are imported correctly.
+
+twitter<-readLines(files_data[1],warn=FALSE,encoding="UTF-8")
+blogs<-readLines(files_data[2],warn=FALSE,encoding="UTF-8")
+news<-readLines(files_data[3],warn=FALSE,encoding="UTF-8")
+
+
+# set seed for reproducibility
+#set.seed(99999)
+set.seed(3433)
+
+# Sampling the data to 0.01 - for better performance
+twitter <- sample(twitter, length(twitter) * 0.01, replace = FALSE)
+blogs <- sample(blogs, length(blogs) * 0.01, replace = FALSE)
+news <- sample(news, length(news) * 0.01, replace = FALSE)
+```
+
+```{r message=FALSE}
+clean_corpus <- function (dataSet) {
+    dataSet <- gsub(pattern="(f|ht)tp(s?)://(.*)[.][a-z]+", replace=" ", dataSet) # remove URL
+    dataSet <- gsub(pattern="@[^\\s]+", replace=" ", dataSet) # remove URL
+    dataSet <- gsub(pattern="\\b[A-Z a-z 0-9._ - ]*[@](.*?)[.]{1,3} \\b", replace=" ", dataSet) # remove URL
+    dataSet <- iconv(dataSet, "latin1", "ASCII", sub = "") # remove non-English words
+    dataSet <- gsub(pattern="\\W", replace=" ", dataSet) # remove punctuation
+    dataSet <- gsub(pattern="\\d", replace=" ", dataSet) # remove digits/numbers
+    dataSet <- tolower(dataSet) # transform to lower case
+    dataSet <- removeWords(dataSet, stopwords("english")) # remove stop words
+    dataSet <- gsub(pattern="\\b[A-z]\\b{1}", replace=" ", dataSet) # remove single chars
+    dataSet <- stripWhitespace(dataSet) # remove white spaces
+    return(dataSet)
+}
+blogs <- clean_corpus(blogs)
+news <- clean_corpus(news)
+twitter <- clean_corpus(twitter)
+# combine all three data sets into a single data set
+inTrain <- c(twitter, blogs, news)
+```
+```{r message=FALSE}
+buildCorpus <- function (dataSet) {
+    docs <- VCorpus(VectorSource(dataSet))
+    docs <- tm_map(docs, PlainTextDocument)
+    return(docs)
+}
+corpus <- buildCorpus(inTrain) # function call
+```
+
+```{r, message = FALSE, echo = FALSE}
+library("corpus")
+# Function for bigrams
+bigramMatrixFreq <- term_stats(corpus, ngrams = 2)
+
+# generate plot
+bigramMatrixFreq %>% 
+  #arrange(desc(freq)) %>%
+  top_n(20, count) %>% 
+  mutate(
+      term = fct_reorder(term, count, .desc = TRUE)
+  ) %>% 
+  plot_ly(x = ~term, y = ~count, type = "bar") %>% 
+  layout(xaxis = list(title = 'Word'), yaxis = list(title = 'Frequency'),
+         title = 'Top 20 most frequent Trigrams')
+
+head(bigramMatrixFreq,20)
+```
+```{r, message = FALSE, echo = FALSE}
+# Function for trigrams
+trigramMatrixFreq <- term_stats(corpus, ngrams = 3)
+
+# generate plot
+trigramMatrixFreq %>% 
+  #arrange(desc(freq)) %>%
+  top_n(20, count) %>% 
+  mutate(
+      term = fct_reorder(term, count, .desc = TRUE)
+  ) %>% 
+  plot_ly(x = ~term, y = ~count, type = "bar") %>% 
+  layout(xaxis = list(title = 'Word'), yaxis = list(title = 'Frequency'),
+         title = 'Top 20 most frequent Trigrams')
+
+head(trigramMatrixFreq,20)
+```
+```{r, message = FALSE, echo = FALSE}
+# Save a single object to a file
+saveRDS(bigramMatrixFreq, "bigramMatrixFreq.rds")
+saveRDS(trigramMatrixFreq, "trigramMatrixFreq.rds")
+# Restore it under a different name
+#bigramMatrixFreq <- readRDS("bigramMatrixFreq.rds")
+```
+```{r eval=FALSE, message=FALSE, include=FALSE}
+  input <- "home alone"
+  i <- stri_stats_latex(input)[4] # number of chars
+  ifelse(i == 1,
+         temp_string <- head(bigramMatrixFreq[grep(paste("^",input, sep=""), bigramMatrixFreq[,1]),], 1),
+         temp_string <- head(trigramMatrixFreq[grep(paste("^",input, sep=""), trigramMatrixFreq[,1]),], 1)
+  )
+  i <- stri_stats_latex(temp_string)[4] # number of chars
+  ifelse(i>0,temp_string <- word(temp_string, i), # check if it find something
+         temp_string <- "word not found"
+  )
+  temp_string
+  bigramMatrixFreq
+  trigramMatrixFreq
+  x <- head(trigramMatrixFreq[grep(paste("^",input, sep=""), trigramMatrixFreq[,1]),])
+  x$count[1]/sum(x$count)
+```

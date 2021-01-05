@@ -1,0 +1,292 @@
+---
+title: 'Data Science Capstone - Week 3 - Quiz 2'
+author: "Crisitan Neuhaus"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+if(!require(AppliedPredictiveModeling))install.packages("AppliedPredictiveModeling")
+if(!require(caret))install.packages("caret")
+if(!require(pgmm))install.packages("pgmm")
+if(!require(rpart))install.packages("rpart")
+if(!require(tidyverse))install.packages("tidyverse")
+if(!require(randomForest))install.packages("randomForest")
+if(!require(rpart.plot))install.packages("rpart.plot")
+if(!require(corrplot))install.packages("corrplot")
+if(!require(rattle))install.packages("rattle")
+if(!require(tm))install.packages("tm")
+if(!require(downloader))install.packages("downloader")
+if(!require(stringi))install.packages("stringi")
+if(!require(wordcloud))install.packages("wordcloud")
+if(!require(plotly))install.packages("plotly")
+if(!require(RWeka))install.packages("RWeka")
+```
+Libraries used:  
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(AppliedPredictiveModeling)
+library(caret)
+library(pgmm)
+library(rpart)
+library(tidyverse)
+library(rpart.plot)
+library(randomForest)
+library(corrplot)
+library(rattle)
+library(tm)
+library(downloader)
+library(stringi)
+library(wordcloud)
+library(plotly)
+library(RWeka)
+```
+## Capstone Week3 Quiz2: Natural language processing I  
+
+For each of the sentence fragments below use your natural language processing algorithm to predict the next word in the sentence.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Junk to download file and unzip it
+Url <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+if (!file.exists('final')) {
+    dir.create('final')
+}
+if (!file.exists("final/en_US")) {
+    if (Sys.info()[['sysname']] == 'Windows'){
+      download.file(Url,destfile="Coursera-SwiftKey.zip") # for window
+      unzip ("Coursera-SwiftKey.zip")
+    }
+    if (Sys.info()[['sysname']] == 'Darwin'){
+      download.file(Url,destfile="Coursera-SwiftKey.zip",method="curl") # for mac
+      unzip ("Coursera-SwiftKey.zip", exdir = "./")
+    }
+}
+```
+
+```{r, message = FALSE, echo = FALSE}
+fragments <- c(
+    "The guy in front of me just bought a pound of bacon, a bouquet, and a case of",
+    "You're the reason why I smile everyday. Can you follow me please? It would mean the",
+    "Hey sunshine, can you follow me and make me the",
+    "Very early observations on the Bills game: Offense still struggling but the",
+    "Go on a romantic date at the",
+    "Well I'm pretty sure my granny has some old bagpipes in her garage I'll dust them off and be on my",
+    "Ohhhhh #PointBreak is on tomorrow. Love that film and haven't seen it in quite some",
+    "After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little",
+    "Be grateful for the good times and keep the faith during the",
+    "If this isn't the cutest thing you've ever seen, then you must be")
+```
+
+```{r message=FALSE}
+#list.files("final/en_US")
+files_data <- c("./final/en_US/en_US.twitter.txt",
+                   "./final/en_US/en_US.blogs.txt",
+                   "./final/en_US/en_US.news.txt")
+```
+
+```{r message=FALSE}
+# Read all three data sets
+# If you are using Windows, you need might need to specify the encoding of the file by adding encoding = "utf-8". In this case, imported texts might appear like <U+4E16><U+754C><U+4EBA><U+6743> but they indicate that Unicode charactes are imported correctly.
+
+twitter<-readLines(files_data[1],warn=FALSE,encoding="UTF-8")
+blogs<-readLines(files_data[2],warn=FALSE,encoding="UTF-8")
+news<-readLines(files_data[3],warn=FALSE,encoding="UTF-8")
+
+
+# set seed for reproducibility
+#set.seed(99999)
+set.seed(3433)
+
+# Sampling the data to 0.01 - for better performance
+twitter <- sample(twitter, length(twitter) * 0.01, replace = FALSE)
+blogs <- sample(blogs, length(blogs) * 0.01, replace = FALSE)
+news <- sample(news, length(news) * 0.01, replace = FALSE)
+```
+
+```{r message=FALSE}
+clean_corpus <- function (dataSet) {
+    dataSet <- gsub(pattern="(f|ht)tp(s?)://(.*)[.][a-z]+", replace=" ", dataSet) # remove URL
+    dataSet <- gsub(pattern="@[^\\s]+", replace=" ", dataSet) # remove URL
+    dataSet <- gsub(pattern="\\b[A-Z a-z 0-9._ - ]*[@](.*?)[.]{1,3} \\b", replace=" ", dataSet) # remove URL
+    dataSet <- iconv(dataSet, "latin1", "ASCII", sub = "") # remove non-English words
+    dataSet <- gsub(pattern="\\W", replace=" ", dataSet) # remove punctuation
+    dataSet <- gsub(pattern="\\d", replace=" ", dataSet) # remove digits/numbers
+    dataSet <- tolower(dataSet) # transform to lower case
+    dataSet <- removeWords(dataSet, stopwords("english")) # remove stop words
+    dataSet <- gsub(pattern="\\b[A-z]\\b{1}", replace=" ", dataSet) # remove single chars
+    dataSet <- stripWhitespace(dataSet) # remove white spaces
+    return(dataSet)
+}
+blogs <- clean_corpus(blogs)
+news <- clean_corpus(news)
+twitter <- clean_corpus(twitter)
+# combine all three data sets into a single data set
+inTrain <- c(twitter, blogs, news)
+```
+```{r message=FALSE}
+buildCorpus <- function (dataSet) {
+    docs <- VCorpus(VectorSource(dataSet))
+    docs <- tm_map(docs, PlainTextDocument)
+    return(docs)
+}
+corpus <- buildCorpus(inTrain) # function call
+```
+
+```{r, message = FALSE, echo = FALSE}
+library("corpus")
+# Function for trigrams
+trigramMatrixFreq <- term_stats(corpus, ngrams = 3)
+
+# generate plot
+trigramMatrixFreq %>% 
+  #arrange(desc(freq)) %>%
+  top_n(20, count) %>% 
+  mutate(
+      term = fct_reorder(term, count, .desc = TRUE)
+  ) %>% 
+  plot_ly(x = ~term, y = ~count, type = "bar") %>% 
+  layout(xaxis = list(title = 'Word'), yaxis = list(title = 'Frequency'),
+         title = 'Top 20 most frequent Trigrams')
+
+head(trigramMatrixFreq,20)
+```
+
+1. When you breathe, I want to be the air for you. I'll be there for you, I'd live and I'd  
+Options: die, eat, give, sleep  
+Answer: *die*  
+
+```{r, message = FALSE, echo = FALSE}
+#write.csv(corpus, "./inTrain.csv")
+head(trigramMatrixFreq[grep("^live and ", trigramMatrixFreq[,1]),], 10)
+```
+
+2. Guy at my table's wife got up to go to the bathroom and I asked about dessert and he started telling me about his  
+Options: horticultural, spiritual, financial, marital  
+Answer: *is not spiritual*  
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^about his ", trigramMatrixFreq[,1]),], 50)
+
+# didn´t find it into top10. So try to look every options
+rbind(trigramMatrixFreq[grep("^about his horticultural", trigramMatrixFreq[,1]),], 
+      trigramMatrixFreq[grep("^about his spiritual", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^about his financial", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^about his marital", trigramMatrixFreq[,1]),])
+```
+
+3. I'd give anything to see arctic monkeys this  
+Options: decade, weekend, morning, month 
+Answer: *weekend* manual  
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^monkey this ", trigramMatrixFreq[,1]),], 10)
+
+# didn´t find it into top10. So try to look every options
+rbind(trigramMatrixFreq[grep("^monkeys this decade", trigramMatrixFreq[,1]),], 
+      trigramMatrixFreq[grep("^monkeys this weekend", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^monkeys this morning", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^monkeys this month", trigramMatrixFreq[,1]),])
+```
+
+
+4. Talking to your mom has the same effect as a hug and helps reduce your  
+Options: stress, happiness, hunger, sleepiness  
+Answer: *stress*   
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^reduce your ", trigramMatrixFreq[,1]),], 10)
+
+# didn´t find it into top10. So try to look every options
+rbind(trigramMatrixFreq[grep("^reduce your stress", trigramMatrixFreq[,1]),], 
+      trigramMatrixFreq[grep("^reduce your happiness", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^reduce your hunger", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^reduce your sleepiness", trigramMatrixFreq[,1]),])
+```
+
+5. When you were in Holland you were like 1 inch away from me but you hadn't time to take a  
+Options: walk, picture, look, minute  
+Answer: *picture*  
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^to take ", trigramMatrixFreq[,1]),], 10)
+
+# didn´t find it into top10. So try to look every options
+rbind(trigramMatrixFreq[grep("^to take walk", trigramMatrixFreq[,1]),], 
+      trigramMatrixFreq[grep("^to take picture", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^to take look", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^to take minute", trigramMatrixFreq[,1]),])
+```
+
+6. I'd just like all of these questions answered, a presentation of evidence, and a jury to settle the  
+Options: case, incident, account, matter  
+Answer: *matter*   
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^settle the ", trigramMatrixFreq[,1]),], 10)
+
+# didn´t find it into top10. So try to look every options
+rbind(trigramMatrixFreq[grep("^settle the case", trigramMatrixFreq[,1]),], 
+      trigramMatrixFreq[grep("^settle the incident", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^settle the account", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^settle the matter", trigramMatrixFreq[,1]),])
+```
+
+7. I can't deal with unsymetrical things. I can't even hold an uneven number of bags of groceries in each  
+Options: toe, finger, arm, hand  
+Answer: *hand*  
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^in each ", trigramMatrixFreq[,1]),], 10)
+```
+
+8. AEvery inch of you is perfect from the bottom to the  
+Options: side, middle, center, top  
+Answer: *top*   
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^to the ", trigramMatrixFreq[,1]),], 10)
+```
+
+9. I’m thankful my childhood was filled with imagination and bruises from playing  
+Options: daily, weekly, outside, inside  
+Answer: *outside*  
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^from playing ", trigramMatrixFreq[,1]),], 20)
+
+# didn´t find it into top10. So try to look every options
+rbind(trigramMatrixFreq[grep("^from playing daily", trigramMatrixFreq[,1]),], 
+      trigramMatrixFreq[grep("^from playing weekly", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^from playing outside", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^from playing inside", trigramMatrixFreq[,1]),])
+```
+
+10. I like how the same people are in almost all of Adam Sandler's  
+Options: novels, pictures, stories, movies  
+Answer: *movies*  
+
+```{r, message = FALSE, echo = FALSE}
+head(trigramMatrixFreq[grep("^adam sandler ", trigramMatrixFreq[,1]),], 10)
+
+# didn´t find it into top10. So try to look every options
+rbind(trigramMatrixFreq[grep("^adam sandler novels", trigramMatrixFreq[,1]),], 
+      trigramMatrixFreq[grep("^adam sandler pictures", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^adam sandler stories", trigramMatrixFreq[,1]),],
+      trigramMatrixFreq[grep("^adam sandler movies", trigramMatrixFreq[,1]),])
+```
+
+**Review criteria**  
+This Peer Assignment contains some requirements:  
+ - Does the link lead to an HTML page describing the exploratory analysis of the training data set?  
+ - Has the data scientist done basic summaries of the three files? Word counts, line counts and basic data tables?  
+ - Has the data scientist made basic plots, such as histograms to illustrate features of the data?  
+ - Was the report written in a brief, concise style, in a way that a non-data scientist manager could appreciate? 
+ 
+ 
+## Next Steps  
+
+As mentioned earlier, the next steps will be to produce a Shiny app in a way that will predict the next word using **natural language processing**.  
+This first step provided an overview over the data and confirmed the needed to work with a sample size of data due to the large data available.  
+The complete code are available into [github.com/Cristianneuhaus](https://github.com/Cristianneuhaus/cristianneuhaus.github.io/tree/master/Coursera/Capstone), PGA-Milestone Report.RMD file. 
