@@ -1,6 +1,6 @@
 This folther contain two tasks from Coursera Data Science Capstone. Task 6 and Task 7.
 
-Task 6 - Data Product
+# Task 6 - Data Product
 The goal of this exercise is to create a product to highlight the prediction algorithm that you have built and to provide an interface that can be accessed by others via a Shiny app..
 
 Tasks to accomplish
@@ -15,7 +15,7 @@ Tips, tricks, and hints
 
 Consider the size of the predictive model you have developed. You may have to sacrifice some accuracy to have a fast enough/small enough model to load into Shiny. 
 
-Task 7 - Slide Deck
+# Task 7 - Slide Deck
 The goal of this exercise is to "pitch" your data product to your boss or an investor. The slide deck is constrained to be 5 slides or less and should: (1) explain how your model works, (2) describe its predictive performance quantitatively and (3) show off the app and how it works. 
 
 Tasks to accomplish
