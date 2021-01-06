@@ -1,5 +1,4 @@
-library(shiny)
-#library(shinyjs)
+library("shiny")
 
 shinyUI(
   fluidPage(
@@ -26,10 +25,10 @@ shinyUI(
       helpText(""),
       tags$a(href="https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip", "Coursera-SwiftKey"),
       helpText("Link to the Coursera-SwiftKey dataset."),
-      helpText("Application runs with a sample size as 1% from the 3 files, New, Blogs and Twitter."),
+      helpText("Application runs with a sample size as 1% from the 3 files, News, Blogs and Twitter."),
       tags$a(href="https://github.com/Cristianneuhaus/cristianneuhaus.github.io/tree/master/Coursera/Capstone", "github - Cristian Neuhaus"),
       helpText("Link to the source code"),
-      tags$a(href="https:", "Slide Deck"),
+      tags$a(href="https://rpubs.com/cn03881/710368", "Slide Deck"),
       helpText("Link to the slide deck that shows off the app and how the model works.")
     ),
     mainPanel(

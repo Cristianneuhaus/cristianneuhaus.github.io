@@ -1,7 +1,12 @@
-library(shiny)
-library(tm)
+library("shiny")
+library("tm")
+library("stringi")
+#library("corpus")
 
 # Restore bi-grams and tri-grams - from nGrams.RMD code
+#load("~/bigramMatrixFreq.rds")
+#load("~/trigramMatrixFreq.rds")
+
 bigramMatrixFreq <- readRDS("bigramMatrixFreq.rds")
 trigramMatrixFreq <- readRDS("trigramMatrixFreq.rds")
 
@@ -22,26 +27,27 @@ clean_corpus <- function (dataSet) {
 }
 
 lastWords <- function(input) {
-  #input <- " open to that and lot of"
-  i <- stri_stats_latex(input)[4]
-  ifelse(stri_stats_latex(input)[4] > 1,
-    return(paste(word(input, i-1),word(input, i))),
-    return(word(input, i))
+  #input <- "happy" "open to that and lot of"
+  i <- stri_stats_latex(input)[4]    # number of words
+  input <- strsplit(input, " ")[[1]] # split words
+  ifelse(i > 1,
+    return(paste(input[i-1],input[i])),
+    return(input[i])
   )
 }
 
 # Predict the next worlds
 predictWords <- function(input) {
   word_to_predict <- lastWords(clean_corpus(input))
-  i <- stri_stats_latex(word_to_predict)[4] # number of chars
+  i <- stri_stats_latex(word_to_predict)[4] # number of words
   ifelse(i == 1,
          temp_string <- bigramMatrixFreq[grep(paste("^",word_to_predict, sep=""), bigramMatrixFreq[,1]),],
          temp_string <- trigramMatrixFreq[grep(paste("^",word_to_predict, sep=""), trigramMatrixFreq[,1]),]
   )
-  i <- stri_stats_latex(temp_string$term[1])[4] # number of chars
+  i <- stri_stats_latex(temp_string$term[1])[4] # number of words
   # check if it find something
   ifelse(i > 0,
-         temp_string <- paste(word(temp_string$term[1], i), " (", 
+         temp_string <- paste((strsplit(temp_string$term, " ")[[1]])[i], " (", 
                               round(temp_string$count[1]/sum(temp_string$count)*100,2),
                               "% confident)",
                               sep = ""), 
