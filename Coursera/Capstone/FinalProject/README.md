@@ -39,3 +39,6 @@ The Rstudio presentation information is available here (https://support.rstudio.
  - server.R - For Shiny App.
  - bigramMatrixFreq.rds - that contain the 2-grams, provided by nGrams.RMD
  - trigramMatrixFreq - that contain the 3-grams, provided by nGrams.RMD
+ - AppArchitecture.vsd - a drawing with the architecture/flow of the Shiny App
+ - SlideDeck.RMD and SlideDeck.html is regarding to the Task 7
+ - *.png files is some pitures used into the Slide Deck - Task 7
