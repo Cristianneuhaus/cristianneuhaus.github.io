@@ -1,7 +1,8 @@
-https://cn03881.shinyapps.io/FinalProject/  
-https://rpubs.com/cn03881/710368
+Final published work:
+ - https://cn03881.shinyapps.io/FinalProject/  
+ - https://rpubs.com/cn03881/710368
 
-This folther contain two tasks from Coursera Data Science Capstone. Task 6 and Task 7.
+This folder contain two tasks from Coursera Data Science Capstone. Task 6 and Task 7.
 
 # Task 6 - Data Product
 The goal of this exercise is to create a product to highlight the prediction algorithm that you have built and to provide an interface that can be accessed by others via a Shiny app..
